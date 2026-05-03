@@ -2,7 +2,7 @@
   "name": "is-2026-devpapois",
   "version": "1.0.0",
   "scripts": {
-    "test": "vitest run"
+    "test": "vitest run --dir tests"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.101.1"
