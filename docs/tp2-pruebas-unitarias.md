@@ -62,10 +62,11 @@ Para la asignación de escritorios en un sector (ej. ID de escritorio entre 1 y 
     * **Fuera de rango:** `0` y `51`.
     * **En el borde:** `1` y `50`.
     * **Dentro del borde:** `2` y `49`.
-ID,Método bajo prueba,Técnica aplicada,Datos de entrada,Resultado esperado
-01,validarUsuario(),Partición de Equivalencia,"usuario: ""AgustinSch""",true (Aceptado)
-02,validarUsuario(),Valor Límite (Mínimo),"usuario: ""Ag""",false (Rechazado)
-03,validarUsuario(),Partición de Equivalencia,"usuario: """"",false (Rechazado)
-04,validarRecurso(),Valor Límite (Mínimo),recursoId: 1,true (Aceptado)
-05,validarRecurso(),Valor Límite (Borde),recursoId: 0,false (Rechazado)
-06,validarRecurso(),Partición de Equivalencia,recursoId: -5,false (Rechazado) 
+|ID,Método bajo prueba,Técnica aplicada,Datos de entrada,Resultado esperado|
+| :--- | :--- | :--- |
+|01,validarUsuario(),Partición de Equivalencia,"usuario: ""AgustinSch""",true (Aceptado)|
+|02,validarUsuario(),Valor Límite (Mínimo),"usuario: ""Ag""",false (Rechazado)|
+|03,validarUsuario(),Partición de Equivalencia,"usuario: """"",false (Rechazado)|
+|04,validarRecurso(),Valor Límite (Mínimo),recursoId: 1,true (Aceptado)|
+|05,validarRecurso(),Valor Límite (Borde),recursoId: 0,false (Rechazado)|
+|06,validarRecurso(),Partición de Equivalencia,recursoId: -5,false (Rechazado) |
