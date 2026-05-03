@@ -1,1 +1,27 @@
+name: CI-DEVpapois-Pruebas-Unitarias
 
+# Esto le dice a GitHub cuándo activarse
+on:
+  push:
+    branches: [ main, master ] # Se activa cuando subís código
+  pull_request:
+    branches: [ main, master ] # Se activa cuando querés unir ramas
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest # Una compu virtual con Linux
+
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v3 # Descarga tu código en la compu virtual
+
+      - name: Instalando Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18' # La versión que usamos en la UCP
+
+      - name: Instalando librerías
+        run: npm install # Instala Jest y las dependencias de tu package.json
+
+      - name: Ejecutando Pruebas Unitarias
+        run: npm test # Corre los 6 casos de prueba que pide el TP
