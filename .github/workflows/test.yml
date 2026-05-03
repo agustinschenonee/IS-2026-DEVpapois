@@ -18,7 +18,7 @@ jobs:
       - name: Instalando Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20' # La versión que usamos en la UCP
+          node-version: '24' # La versión que usamos en la UCP
 
       - name: Instalando librerías
         run: npm install # Instala Jest y las dependencias de tu package.json
