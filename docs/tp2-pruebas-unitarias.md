@@ -63,3 +63,6 @@ Para la asignación de escritorios en un sector (ej. ID de escritorio entre 1 y 
     * **En el borde:** `1` y `50`.
     * **Dentro del borde:** `2` y `49`.
 
+---
+### B1. Pruebas unitarias con TDD
+
