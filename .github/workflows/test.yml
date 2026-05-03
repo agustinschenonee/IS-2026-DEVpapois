@@ -18,7 +18,6 @@ jobs:
       - name: Instalando Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18' # La versión que usamos en la UCP
           node-version: '20' # La versión que usamos en la UCP
 
       - name: Instalando librerías
