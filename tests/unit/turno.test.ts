@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { Turno } from '../../src/logic/Turno';
+import { Turno } from '../../src/Turno';
 
 describe('B1. Pruebas Unitarias para Clase Turno', () => {
 
