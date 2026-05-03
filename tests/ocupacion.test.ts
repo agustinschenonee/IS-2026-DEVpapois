@@ -32,10 +32,23 @@ describe('Pruebas Unitarias - Validador de Ocupación (B1)', () => {
     expect(disponible).toBe(true);
   });
 
-  it('Caso 09: No debería estar disponible si se traslapa al final (Equivalencia Inválida)', async () => {
+ // Reemplazá el bloque de it('Caso 09...') por este:
+it('Caso 09: No debería estar disponible si se traslapa al final', async () => {
+    // Forzamos al mock a devolver un turno que choque
+    vi.spyOn(supabase, 'from').mockReturnValue({
+        select: () => ({
+            eq: () => ({
+                eq: () => Promise.resolve({ 
+                    data: [{ hora_inicio: '10:00', hora_fin: '11:00' }], 
+                    error: null 
+                })
+            })
+        })
+    } as any);
+
     const disponible = await verificarDisponibilidad(1, '2024-10-10', '10:30', '11:30');
-    expect(disponible).toBe(false);
-  });
+    expect(disponible).toBe(false); // Ahora sí debería fallar y dar false
+});
 
   it('Caso 10: No debería estar disponible si la nueva reserva contiene a la anterior (Equivalencia)', async () => {
     const disponible = await verificarDisponibilidad(1, '2024-10-10', '09:00', '12:00');
@@ -47,12 +60,16 @@ describe('Pruebas Unitarias - Validador de Ocupación (B1)', () => {
     expect(disponible).toBe(false);
   });
 
-  it('Caso 12: Debería fallar si Supabase devuelve un error (Manejo de excepciones)', async () => {
-    // Cambiamos el mock solo para este test para simular un error
-    // @ts-ignore
-    supabase.from().select().eq().eq.mockReturnValueOnce(Promise.resolve({ data: null, error: true }));
+ it('Caso 12: Debería fallar si Supabase devuelve un error', async () => {
+    vi.spyOn(supabase, 'from').mockReturnValue({
+        select: () => ({
+            eq: () => ({
+                eq: () => Promise.resolve({ data: null, error: new Error("Simulated Error") })
+            })
+        })
+    } as any);
     
     await expect(verificarDisponibilidad(1, '2024-10-10', '15:00', '16:00'))
       .rejects.toThrow("Error al consultar disponibilidad en Supabase");
-  });
+});
 });
