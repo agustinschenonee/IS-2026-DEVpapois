@@ -1,1 +1,5 @@
+El sistema está dirigido principalmente a miembros de un espacio de coworking que necesitan reservar salas o escritorios de manera rápida y eficiente. También contempla un perfil de administrador, encargado de gestionar los recursos disponibles, como salas, horarios y disponibilidad.
+Los usuarios principales realizan tareas como consultar la disponibilidad de espacios, seleccionar un día y horario, y confirmar una reserva. Estas acciones son frecuentes y requieren ser simples e intuitivas, ya que los usuarios buscan completar el proceso con rapidez y sin cometer errores.
+El sistema está diseñado para ser utilizado tanto desde computadoras como dispositivos móviles, en contextos cotidianos de trabajo o estudio. Los usuarios pueden necesitar realizar reservas en momentos de poco tiempo disponible, por lo que la interfaz debe facilitar una interacción ágil.
+En este contexto, resulta fundamental minimizar errores, proporcionar feedback claro y permitir completar las tareas principales con la menor cantidad de pasos posibles, garantizando una experiencia de usuario satisfactoria.
 
