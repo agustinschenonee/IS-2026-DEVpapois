@@ -1,24 +1,23 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { TurnoService } from '../../src/TurnoService'; // Ajusta la ruta a tu carpeta src
-import * as Validador from '../../src/ValidadorOcupacion';
-import { supabase } from '../../src/supabase';
+import { TurnoService } from '../src/TurnoService'; // Verifica que la ruta sea correcta
+import * as Validador from '../src/ValidadorOcupacion';
+import { supabase } from '../src/supabase';
 
 // 1. Mockeamos el validador externo
-vi.mock('../../src/ValidadorOcupacion', () => ({
+vi.mock('../src/ValidadorOcupacion', () => ({
   verificarDisponibilidad: vi.fn()
 }));
 
-// 2. Mockeamos Supabase
-vi.mock('../../src/supabase', () => ({
+// 2. Mockeamos Supabase de forma que Vitest reconozca las funciones
+vi.mock('../src/supabase', () => ({
   supabase: {
     from: vi.fn(() => ({
       select: vi.fn(() => ({
         eq: vi.fn(() => ({
           eq: vi.fn(() => ({
-            order: vi.fn(() => Promise.resolve({ data: [], error: null })),
-            // Para el insert
+            order: vi.fn().mockResolvedValue({ data: [], error: null }),
             insert: vi.fn(() => ({
-              select: vi.fn(() => Promise.resolve({ data: [{ id: 1 }], error: null }))
+              select: vi.fn().mockResolvedValue({ data: [{ id: 1 }], error: null })
             }))
           }))
         }))
@@ -34,8 +33,9 @@ describe('Pruebas Unitarias - TurnoService (B1/B3)', () => {
   });
 
   it('Caso 13: Debería rechazar la reserva si el validador dice que está ocupado', async () => {
-    // Simulamos que el validador dice que NO está libre
-    vi.mocked(Validador.verificarDisponibilidad).mockResolvedValue(false);
+    // CORRECCIÓN: Usamos la función del módulo mockeado directamente
+    const spy = vi.spyOn(Validador, 'verificarDisponibilidad');
+    spy.mockResolvedValue(false);
 
     const resultado = await TurnoService.reservarTurno(1, 10, '2024-12-01', '09:00', '10:00');
 
@@ -44,13 +44,15 @@ describe('Pruebas Unitarias - TurnoService (B1/B3)', () => {
   });
 
   it('Caso 14: Debería crear la reserva exitosamente si está libre', async () => {
-    // Simulamos que el validador dice que SÍ está libre
-    vi.mocked(Validador.verificarDisponibilidad).mockResolvedValue(true);
+    // CORRECCIÓN: Forzamos el valor de retorno para este caso positivo
+    const spy = vi.spyOn(Validador, 'verificarDisponibilidad');
+    spy.mockResolvedValue(true);
 
     const resultado = await TurnoService.reservarTurno(1, 10, '2024-12-01', '14:00', '15:00');
 
     expect(resultado.success).toBe(true);
     expect(resultado.data).toBeDefined();
+    expect(resultado.data.id).toBe(1);
   });
 
   it('Caso 15: obtenerCalendario debería devolver lista vacía si no hay turnos (Límite)', async () => {
