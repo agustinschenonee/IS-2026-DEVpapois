@@ -46,7 +46,10 @@ btnLogin?.addEventListener('click', async () => {
             // Usamos data.nombre para saludarlo por su nombre
             txtMensajeLogin.innerText = `✅ ¡Bienvenido de nuevo, ${data.nombre}! Entrando a DEVpapois...`;
             txtMensajeLogin.style.color = "green";
-            
+           // Guardamos el nombre y el mail para usarlos después
+localStorage.setItem('usuario_nombre', data.nombre);
+localStorage.setItem('usuario_email', emailVal); 
+localStorage.setItem('usuario_id', data.id); // Si tenés el ID en la tabla Usuarios 
             // LA MAGIA: Esperamos 1 segundo para que lea el mensaje, y lo mandamos al panel
             setTimeout(() => {
                 window.location.href = "panel.html";
