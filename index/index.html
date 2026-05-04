@@ -7,15 +7,23 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { --primary: #004a99; --secondary: #3ecf8e; --bg: #f1f5f9; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); color: #334155; padding-bottom: 2rem; }
-        header { background: var(--primary); color: white; padding: 1.5rem 5%; font-weight: bold; font-size: 1.4rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .container { max-width: 600px; margin: 2rem auto; padding: 0 1rem; }
-        .form-card { background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); color: #334155; padding-bottom: 3rem; }
+        header { background: var(--primary); color: white; padding: 1.5rem 5%; font-weight: bold; font-size: 1.4rem; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .container { max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        
+        .form-card { background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); margin-bottom: 2rem; }
         .form-group { margin-bottom: 1.2rem; }
         label { display: block; margin-bottom: 8px; font-weight: 600; color: #64748b; font-size: 0.9rem; }
         input { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; box-sizing: border-box; font-size: 1rem; }
+        
         .btn { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 8px; width: 100%; font-weight: bold; font-size: 1.1rem; cursor: pointer; transition: 0.3s; }
-        .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn:hover { background: #003a7a; transform: translateY(-1px); }
+
+        .list-section { margin-top: 2rem; }
+        .user-item { background: white; margin-top: 10px; padding: 15px; border-radius: 10px; border-left: 5px solid var(--secondary); display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .user-info { font-size: 0.9rem; color: #475569; }
+        .user-info strong { color: var(--primary); font-size: 1rem; }
+        
         #reg-mensaje { font-weight: bold; margin-top: 15px; text-align: center; }
     </style>
 </head>
@@ -24,23 +32,23 @@
 <header>🏫 Sistema de Coworking DEVpapois</header>
 
 <div class="container">
+    <!-- FORMULARIO DE REGISTRO -->
     <div class="form-card">
-        <h2 style="margin-top:0; color: var(--primary);">Crear Cuenta</h2>
-        <p style="color: #64748b; margin-bottom: 1.5rem;">Completá tus datos para registrarte en el sistema de la UCP.</p>
+        <h2 style="margin-top:0; color: var(--primary);">Registro de Clientes</h2>
         
         <div class="form-group">
             <label>👤 Nombre y Apellido</label>
-            <input type="text" id="reg-nombre" placeholder="Ej: Priscila Galeano">
+            <input type="text" id="reg-nombre" placeholder="Nombre completo">
         </div>
 
         <div class="form-group">
-            <label>🪪 DNI (Sin puntos)</label>
-            <input type="text" id="reg-dni" placeholder="Ej: 46478627">
+            <label>🪪 DNI</label>
+            <input type="text" id="reg-dni" placeholder="Número de documento">
         </div>
 
         <div class="form-group">
             <label>📧 Correo electrónico</label>
-            <input type="email" id="reg-email" placeholder="pri@ucp.edu.ar">
+            <input type="email" id="reg-email" placeholder="email@ejemplo.com">
         </div>
 
         <div class="form-group">
@@ -48,12 +56,20 @@
             <input type="password" id="reg-password" placeholder="Mínimo 4 caracteres">
         </div>
 
-        <button id="btn-registrar" class="btn">Registrarme</button>
+        <button id="btn-registrar" class="btn">Registrar Usuario</button>
         <p id="reg-mensaje"></p>
+    </div>
+
+    <!-- LISTADO DE USUARIOS (Igual que en Turnos) -->
+    <div class="list-section">
+        <h3 style="color: #334155;">👥 Usuarios Registrados en el Sistema</h3>
+        <div id="lista-usuarios">
+            <p style="color: #94a3b8;">Cargando usuarios...</p>
+        </div>
     </div>
 </div>
 
-<!-- El script de conexión se maneja en main.ts -->
-<script type="module" src="../src/main.ts"></script>
+<!-- IMPORTANTE: Revisá que la ruta al main.ts sea la correcta -->
+<script type="module" src="/src/main.ts"></script>
 </body>
 </html>
