@@ -1,7 +1,7 @@
 import { Usuario } from './logic/Usuario';
 import { supabase } from './supabase';
 
-// 1. Referencias al HTML
+// 1. Selección de elementos de la interfaz
 const btnRegistrar = document.getElementById('btn-registrar') as HTMLButtonElement;
 const inputNombre = document.getElementById('reg-nombre') as HTMLInputElement;
 const inputDni = document.getElementById('reg-dni') as HTMLInputElement;
@@ -9,45 +9,52 @@ const inputEmail = document.getElementById('reg-email') as HTMLInputElement;
 const inputPass = document.getElementById('reg-password') as HTMLInputElement;
 const txtMensaje = document.getElementById('reg-mensaje') as HTMLParagraphElement;
 
-// 2. Acción al hacer clic
+// 2. Controlador del evento de Registro
 btnRegistrar?.addEventListener('click', async () => {
     
-    // Validamos usando tu lógica de la Tarjeta #19
-    const userLogica = new Usuario(null, inputNombre.value, inputEmail.value, inputPass.value);
+    // Instanciamos la lógica (Tarjeta #19)
+    const userLogica = new Usuario(
+        null, 
+        inputNombre.value, 
+        inputEmail.value, 
+        inputPass.value
+    );
 
-    // Verificamos: Nombre (min 2), Clave (min 4) y que el DNI no esté vacío
+    // 3. Validación: Requisitos mínimos y DNI presente
     if (userLogica.validarRegistro() && inputDni.value.trim() !== "") {
-        txtMensaje.innerText = "⏳ Guardando en la base de la UCP...";
-        txtMensaje.style.color = "blue";
+        txtMensaje.innerText = "⏳ Registrando en el sistema...";
+        txtMensaje.style.color = "#004a99";
 
-        // 3. INSERCIÓN: Usamos los nombres exactos de image_c56034.png
-        const { error } = await supabase.from('usuarios').insert([{
-            "nombre": inputNombre.value,
-            "DNI": inputDni.value,                 // Mayúsculas como en la tabla
-            "Correo electrónico": inputEmail.value, // Espacio y acento como en la tabla
-            "contraseña": inputPass.value,         // Minúscula
-            "rol": 'cliente',
-            "teléfono": "3764000000"               // Valor por defecto para evitar errores
+        // 4. Inserción en la nueva tabla 'Usuarios'
+        // Los nombres de las propiedades coinciden exactamente con las columnas SQL
+        const { error } = await supabase.from('Usuarios').insert([{
+            dni: inputDni.value,
+            nombre: inputNombre.value,
+            email: inputEmail.value,
+            password: inputPass.value,
+            rol: 'cliente'
         }]);
 
         if (error) {
-            console.error("Detalle del error:", error);
+            console.error("Error de Supabase:", error);
             txtMensaje.innerText = "❌ Error: " + error.message;
             txtMensaje.style.color = "red";
         } else {
-            txtMensaje.innerText = "✅ ¡Registro exitoso en DEVpapois!";
+            txtMensaje.innerText = "✅ ¡Registro exitoso! Ya podés iniciar sesión.";
             txtMensaje.style.color = "green";
-            limpiarCampos();
+            limpiarFormulario();
         }
     } else {
-        txtMensaje.innerText = "⚠️ Datos inválidos: Nombre (min 2), Clave (min 4) y DNI obligatorio.";
+        txtMensaje.innerText = "⚠️ Datos inválidos: Revisá el DNI, Nombre (min 2) y Clave (min 4).";
         txtMensaje.style.color = "orange";
     }
 });
 
-function limpiarCampos() {
-    inputNombre.value = "";
-    inputDni.value = "";
-    inputEmail.value = "";
-    inputPass.value = "";
+/**
+ * Limpia los campos de texto después de un registro exitoso.
+ */
+function limpiarFormulario() {
+    [inputNombre, inputDni, inputEmail, inputPass].forEach(input => {
+        input.value = "";
+    });
 }
