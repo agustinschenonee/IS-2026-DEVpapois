@@ -1,19 +1,18 @@
-import { Usuario } from './logic/Usuario'; // La clase que ya tiene los 19 verdes
-import { supabase } from './supabase';    // Tu conexión a la base
+import { Usuario } from './logic/Usuario';
+import { supabase } from './supabase';
 
-// 1. Capturamos los elementos del HTML
+// 1. Seleccionamos los elementos del HTML
 const btnRegistrar = document.getElementById('btn-registrar') as HTMLButtonElement;
 const inputNombre = document.getElementById('reg-nombre') as HTMLInputElement;
+const inputDni = document.getElementById('reg-dni') as HTMLInputElement; // Captura el DNI
 const inputEmail = document.getElementById('reg-email') as HTMLInputElement;
 const inputPass = document.getElementById('reg-password') as HTMLInputElement;
 const txtMensaje = document.getElementById('reg-mensaje') as HTMLParagraphElement;
 
-// 
-
-// 2. Escuchamos el clic del botón
+// 2. Escuchamos el evento de clic en el botón de registro
 btnRegistrar?.addEventListener('click', async () => {
     
-    // Creamos el objeto con lo que Priscila (o el usuario) escribió
+    // Creamos la instancia del usuario con los datos ingresados
     const nuevoUsuario = new Usuario(
         null, 
         inputNombre.value, 
@@ -21,14 +20,15 @@ btnRegistrar?.addEventListener('click', async () => {
         inputPass.value
     );
 
-    // 3. Validamos con la lógica de la Tarjeta #19 (2 letras nombre, 4 clave)
-    if (nuevoUsuario.validarRegistro()) {
+    // 3. Validamos (Nombre min 2, Clave min 4 y que el DNI no esté vacío)
+    if (nuevoUsuario.validarRegistro() && inputDni.value.trim() !== "") {
         txtMensaje.innerText = "⏳ Procesando registro en DEVpapois...";
         txtMensaje.style.color = "blue";
 
-        // 4. Mandamos a la base de datos real
+        // 4. Inserción en Supabase incluyendo la columna 'dni' para evitar el error de restricción NOT NULL
         const { error } = await supabase.from('usuarios').insert([{
             nombre: nuevoUsuario.nombre,
+            dni: inputDni.value, // <--- Solución al error de "null value in column dni"
             email: nuevoUsuario.email,
             password: nuevoUsuario.password,
             rol: 'cliente'
@@ -43,13 +43,18 @@ btnRegistrar?.addEventListener('click', async () => {
             limpiarCampos();
         }
     } else {
-        txtMensaje.innerText = "⚠️ Datos inválidos: Nombre (min 2) y Clave (min 4).";
+        // Mensaje de error si la validación local falla
+        txtMensaje.innerText = "⚠️ Datos inválidos: DNI obligatorio, Nombre (min 2) y Clave (min 4).";
         txtMensaje.style.color = "red";
     }
 });
 
+/**
+ * Limpia los campos del formulario tras un registro exitoso.
+ */
 function limpiarCampos() {
     inputNombre.value = "";
+    inputDni.value = "";
     inputEmail.value = "";
     inputPass.value = "";
 }
