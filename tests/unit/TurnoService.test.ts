@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { TurnoService } from '../src/TurnoService';
-import * as Validador from '../src/ValidadorOcupacion';
-import { supabase } from '../src/supabase';
+
+import { TurnoService } from '../../src/TurnoService';
+import * as Validador from '../../src/ValidadorOcupacion';
+import { supabase } from '../../src/supabase';
 
 // 1. Mockeamos el validador
 vi.mock('../src/ValidadorOcupacion', () => ({
