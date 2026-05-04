@@ -11,9 +11,9 @@ export class Usuario {
   validarRegistro(): boolean {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return (
-      this.nombre.length >= 3 && 
+      this.nombre.length >= 2 && 
       emailRegex.test(this.email) && 
-      this.password.length >= 8
+      this.password.length >= 4
     );
   }
 }
