@@ -1,7 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Datos de tu proyecto ISI-2026-DEVpapois
+// URL de DEVpapois
 const supabaseUrl = 'https://wybiblrhcphwuhrmgkhv.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind5YmlibHJoY3Bod3Vocm1na2h2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwOTYxOTUsImV4cCI6MjA4OTY3MjE5NX0.qiBG-FqFhI8IaRqlTT-qb10qHQ2SEJrnZ_Djh49VvyA';
+
+// Usamos la nueva clave publishable (es la versión moderna de la 'anon' key)
+const supabaseKey = 'sb_publishable_tP0l_3gGWpQYnxci-Dn_-w_wdbl5AhM';
 
 export const supabase = createClient(supabaseUrl, supabaseKey);
