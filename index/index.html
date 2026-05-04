@@ -2,61 +2,30 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UCP | Coworking DEVpapois</title>
+    <title>UCP | Registro DEVpapois</title>
     <style>
-        :root { --primary: #004a99; --secondary: #3ecf8e; --bg: #f1f5f9; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); padding-bottom: 3rem; }
-        header { background: var(--primary); color: white; padding: 1.5rem 5%; font-weight: bold; font-size: 1.4rem; }
-        .container { max-width: 600px; margin: 2rem auto; padding: 0 1rem; }
-        .form-card { background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 10px 15px rgba(0,0,0,0.1); }
-        .form-group { margin-bottom: 1.2rem; }
-        label { display: block; margin-bottom: 8px; font-weight: 600; color: #64748b; }
-        input { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; box-sizing: border-box; }
-        .btn { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; font-size: 1.1rem; }
-        #reg-mensaje { font-weight: bold; margin-top: 15px; text-align: center; }
-        .user-list { margin-top: 2rem; background: white; padding: 1.5rem; border-radius: 15px; }
+        :root { --primary: #004a99; --bg: #f1f5f9; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); display: flex; justify-content: center; padding: 40px; }
+        .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 15px rgba(0,0,0,0.1); width: 100%; max-width: 450px; }
+        h2 { color: var(--primary); margin-top: 0; }
+        input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #e2e8f0; border-radius: 8px; box-sizing: border-box; }
+        button { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1rem; }
+        #mensaje { text-align: center; margin-top: 15px; font-weight: bold; min-height: 1.2em; }
     </style>
 </head>
 <body>
 
-<header>🏫 Sistema de Coworking DEVpapois</header>
-
-<div class="container">
-    <div class="form-card">
-        <h2 style="margin-top:0; color: var(--primary);">Registro de Clientes</h2>
-        
-        <div class="form-group">
-            <label>👤 Nombre y Apellido</label>
-            <input type="text" id="reg-nombre" placeholder="Ej: Priscila Galeano">
-        </div>
-
-        <div class="form-group">
-            <label>🪪 DNI</label>
-            <input type="text" id="reg-dni" placeholder="Sin puntos">
-        </div>
-
-        <div class="form-group">
-            <label>📧 Correo electrónico</label>
-            <input type="email" id="reg-email" placeholder="pri@ucp.edu.ar">
-        </div>
-
-        <div class="form-group">
-            <label>🔑 Contraseña</label>
-            <input type="password" id="reg-password" placeholder="Mínimo 4 caracteres">
-        </div>
-
-        <button id="btn-registrar" class="btn">Registrar Usuario</button>
-        <p id="reg-mensaje"></p>
-    </div>
-
-    <div class="user-list">
-        <h3>👥 Usuarios Registrados</h3>
-        <div id="lista-usuarios"><p>Cargando lista...</p></div>
-    </div>
+<div class="card">
+    <h2>Registro de Clientes</h2>
+    <input type="text" id="reg-nombre" placeholder="Nombre completo">
+    <input type="text" id="reg-dni" placeholder="DNI (Sin puntos)">
+    <input type="email" id="reg-email" placeholder="Correo electrónico">
+    <input type="password" id="reg-pass" placeholder="Contraseña">
+    <button id="btn-registrar">Registrar Usuario</button>
+    <p id="mensaje"></p>
 </div>
 
-<!-- RUTA CORRECTA PARA TU CARPETA INDEX -->
+<!-- Ruta ajustada para tu estructura de carpetas -->
 <script type="module" src="../src/main.ts"></script>
 </body>
 </html>
