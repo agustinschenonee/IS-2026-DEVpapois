@@ -43,15 +43,7 @@ btnLogin?.addEventListener('click', async () => {
         // Si hay 'data', el usuario es real y los datos están bien
         console.log("¡Usuario logueado exitosamente!", data);
         if (txtMensajeLogin) {
-            // Usamos data.nombre para saludarlo por su nombre (¡un toque de UX genial!)
-            txtMensajeLogin.innerText = `✅ ¡Bienvenido de nuevo, ${data.nombre}! Entrando a DEVpapois...`;
-            txtMensajeLogin.style.color = "green";
-            
-} else {
-        // Si hay 'data', el usuario es real y los datos están bien
-        console.log("¡Usuario logueado exitosamente!", data);
-        if (txtMensajeLogin) {
-            // Usamos data.nombre para saludarlo por su nombre (¡un toque de UX genial!)
+            // Usamos data.nombre para saludarlo por su nombre
             txtMensajeLogin.innerText = `✅ ¡Bienvenido de nuevo, ${data.nombre}! Entrando a DEVpapois...`;
             txtMensajeLogin.style.color = "green";
             
@@ -62,4 +54,3 @@ btnLogin?.addEventListener('click', async () => {
         }
     }
 });
-        
