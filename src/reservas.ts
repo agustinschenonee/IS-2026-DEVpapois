@@ -67,20 +67,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // 4. Lógica para el botón Reservar
 window.reservarTurno = async (idTurno: number) => {
+    // 1. Recuperamos el mail que guardamos en el Login
+    const emailUsuario = localStorage.getItem('usuario_email');
+
+    if (!emailUsuario) {
+        alert("⚠️ No se encontró tu sesión. Por favor, volvé a ingresar.");
+        window.location.href = "index/login-prueba.html";
+        return;
+    }
+
     const confirmacion = confirm("¿Estás seguro que querés reservar este turno?");
+    
     if (confirmacion) {
+        
         const { data, error } = await supabase
             .from('turnos')
             .update({ 
                 esta_reservado: true,
-                confirmado: true 
+                confirmado: true,
+                usuario_email: emailUsuario // <--- ACÁ VINCULAMOS LA IDENTIDAD
             })
             .eq('id', idTurno);
 
         if (error) {
             alert("Error al reservar: " + error.message);
         } else {
-            alert("¡Turno reservado con éxito! 🎉");
+            alert(`¡Turno reservado con éxito para ${emailUsuario}! 🎉`);
             location.reload();
         }
     }
