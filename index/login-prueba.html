@@ -14,8 +14,21 @@
     <label>Contraseña:</label><br>
     <input type="password" id="login-pass" placeholder="Tu contraseña"><br><br>
 
-    <button id="btn-login">Iniciar Sesión de Prueba</button>
+<button id="btn-login">Iniciar Sesión de Prueba</button>
 
+    <!-- Agregamos este salto de línea y el enlace que lleva a tu otra pantalla -->
+    <br><br>
+    <div style="margin-top: 15px;">
+        <span>¿No tenés cuenta en DEVpapois? </span>
+        <a href="index.html" style="color: blue; text-decoration: underline; cursor: pointer;">Registrate acá</a>
+    </div>
+
+    <p id="mensaje-login" style="font-weight: bold;"></p>
+
+    <!-- Tu script que conecta con TypeScript -->
+    <script type="module" src="../src/AuthService.ts"></script> 
+</body>
+</html>
     <p id="mensaje-login" style="font-weight: bold;"></p>
 
     <!-- ¡Importante! Asegurate de que la ruta apunte al archivo donde pusiste el código TypeScript de la respuesta anterior -->
