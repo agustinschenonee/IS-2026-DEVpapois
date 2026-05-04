@@ -1,18 +1,18 @@
 import { Usuario } from './logic/Usuario';
 import { supabase } from './supabase';
 
-// 1. "Enchufamos" los elementos del HTML al código
+// 1. Capturamos los elementos del HTML
 const btnRegistrar = document.getElementById('btn-registrar') as HTMLButtonElement;
 const inputNombre = document.getElementById('reg-nombre') as HTMLInputElement;
-const inputDni = document.getElementById('reg-dni') as HTMLInputElement; // <--- Nuevo: Captura el DNI
+const inputDni = document.getElementById('reg-dni') as HTMLInputElement; // <--- Línea clave
 const inputEmail = document.getElementById('reg-email') as HTMLInputElement;
 const inputPass = document.getElementById('reg-password') as HTMLInputElement;
 const txtMensaje = document.getElementById('reg-mensaje') as HTMLParagraphElement;
 
-// 2. Escuchamos el clic para registrar
+// 2. Escuchamos el clic
 btnRegistrar?.addEventListener('click', async () => {
     
-    // Creamos el objeto Usuario con la lógica de la Tarjeta #19
+    // Usamos la lógica de la Tarjeta #19 (Nombre min 2, Clave min 4)
     const nuevoUsuario = new Usuario(
         null, 
         inputNombre.value, 
@@ -20,12 +20,12 @@ btnRegistrar?.addEventListener('click', async () => {
         inputPass.value
     );
 
-    // 3. Validamos: Nombre (min 2), Clave (min 4) y que el DNI no esté vacío
+    // Validamos localmente antes de gastar internet en Supabase
     if (nuevoUsuario.validarRegistro() && inputDni.value.trim() !== "") {
-        txtMensaje.innerText = "⏳ Guardando en la base de datos...";
+        txtMensaje.innerText = "⏳ Guardando en DEVpapois...";
         txtMensaje.style.color = "blue";
 
-        // 4. MANDAMOS A SUPABASE (Incluyendo la columna 'dni')
+        // 3. MANDAMOS A SUPABASE (Ahora sí con el DNI incluido)
         const { error } = await supabase.from('usuarios').insert([{
             nombre: nuevoUsuario.nombre,
             dni: inputDni.value, // <--- Esto soluciona el error de "null value"
@@ -35,7 +35,7 @@ btnRegistrar?.addEventListener('click', async () => {
         }]);
 
         if (error) {
-            txtMensaje.innerText = "❌ Error de Supabase: " + error.message;
+            txtMensaje.innerText = "❌ Error de BD: " + error.message;
             txtMensaje.style.color = "red";
         } else {
             txtMensaje.innerText = "✅ ¡Usuario creado con éxito!";
@@ -43,12 +43,11 @@ btnRegistrar?.addEventListener('click', async () => {
             limpiarCampos();
         }
     } else {
-        txtMensaje.innerText = "⚠️ Datos incompletos: Nombre (min 2), Clave (min 4) y DNI son obligatorios.";
+        txtMensaje.innerText = "⚠️ Falta el DNI o los datos no cumplen el mínimo (Nombre 2, Clave 4).";
         txtMensaje.style.color = "red";
     }
 });
 
-// Función para limpiar el formulario
 function limpiarCampos() {
     inputNombre.value = "";
     inputDni.value = "";
