@@ -4,6 +4,21 @@ declare global {
     reservarTurno: (idTurno: number) => Promise<void>;
   }
 }
+function mostrarBienvenida() {
+    // Recuperamos el nombre que guardamos recién en el login
+    const nombreGuardado = localStorage.getItem('usuario_nombre');
+    const elementoSaludo = document.getElementById('saludo-usuario');
+    
+    if (elementoSaludo && nombreGuardado) {
+        elementoSaludo.innerText = `¡Hola, ${nombreGuardado}! 👋`;
+    }
+}
+
+// Asegurate de que se ejecute cuando cargue la página
+document.addEventListener('DOMContentLoaded', () => {
+    mostrarBienvenida();
+    cargarTurnosDisponibles(); // La función que ya tenías
+});
 async function cargarTurnosDisponibles() {
     // 1. Consultamos la tabla 'turnos' usando tus nombres exactos de columna
     const { data, error } = await supabase
