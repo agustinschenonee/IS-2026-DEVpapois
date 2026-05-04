@@ -1,76 +1,52 @@
-import { Usuario } from './logic/Usuario';
 import { supabase } from './supabase';
 
-// Elementos de la interfaz
-const btnRegistrar = document.getElementById('btn-registrar') as HTMLButtonElement;
-const inputNombre = document.getElementById('reg-nombre') as HTMLInputElement;
-const inputDni = document.getElementById('reg-dni') as HTMLInputElement;
-const inputEmail = document.getElementById('reg-email') as HTMLInputElement;
-const inputPass = document.getElementById('reg-password') as HTMLInputElement;
-const txtMensaje = document.getElementById('reg-mensaje') as HTMLParagraphElement;
-const contenedorUsuarios = document.getElementById('lista-usuarios') as HTMLDivElement;
+console.log("🚀 Sistema DEVpapois iniciado");
 
-// 1. FUNCIÓN PARA CARGAR LA LISTA (Igual que en turnos)
-async function actualizarListaUsuarios() {
-    try {
-        const { data, error } = await supabase
-            .from('Usuarios') // Verificá que en Supabase empiece con Mayúscula
-            .select('nombre, dni, email, rol')
-            .order('id', { ascending: false });
+const btn = document.getElementById('btn-registrar');
+const msg = document.getElementById('mensaje');
 
-        if (error) throw error;
+btn?.addEventListener('click', async () => {
+    // 1. Capturamos los datos
+    const nombreVal = (document.getElementById('reg-nombre') as HTMLInputElement).value;
+    const dniVal = (document.getElementById('reg-dni') as HTMLInputElement).value;
+    const emailVal = (document.getElementById('reg-email') as HTMLInputElement).value;
+    const passVal = (document.getElementById('reg-pass') as HTMLInputElement).value;
 
-        if (data) {
-            contenedorUsuarios.innerHTML = '';
-            if (data.length === 0) {
-                contenedorUsuarios.innerHTML = '<p style="color: gray;">No hay usuarios todavía.</p>';
-            } else {
-                data.forEach(u => {
-                    contenedorUsuarios.innerHTML += `
-                        <div style="background: white; margin-bottom: 8px; padding: 10px; border-radius: 8px; border-left: 4px solid #3ecf8e; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                            <strong>${u.nombre}</strong> <span style="font-size: 0.8rem; color: #64748b;">(DNI: ${u.dni})</span><br>
-                            <small>${u.email}</small>
-                        </div>
-                    `;
-                });
-            }
+    // 2. Validación básica de campos vacíos
+    if (!nombreVal || !dniVal || !emailVal || !passVal) {
+        if (msg) {
+            msg.innerText = "⚠️ Por favor, completá todos los campos.";
+            msg.style.color = "orange";
         }
-    } catch (err: any) {
-        contenedorUsuarios.innerHTML = `<p style="color: red;">❌ Error de conexión: ${err.message}</p>`;
+        return;
     }
-}
 
-// 2. EVENTO REGISTRAR
-btnRegistrar?.addEventListener('click', async () => {
-    const logica = new Usuario(null, inputNombre.value, inputEmail.value, inputPass.value);
+    if (msg) msg.innerText = "⏳ Guardando datos...";
 
-    if (logica.validarRegistro() && inputDni.value.trim() !== "") {
-        txtMensaje.innerText = "⏳ Registrando...";
-        
-        const { error } = await supabase.from('Usuarios').insert([{
-            dni: inputDni.value,
-            nombre: inputNombre.value,
-            email: inputEmail.value,
-            password: inputPass.value,
-            rol: 'cliente'
-        }]);
+    // 3. INSERCIÓN: Mapeo exacto a las columnas de la imagen
+    // Usamos comillas para "Correo electrónico" y "contraseña"
+    const { error } = await supabase.from('Usuarios').insert([{
+        "nombre": nombreVal,
+        "DNI": dniVal,
+        "Correo electrónico": emailVal,
+        "contraseña": passVal
+    }]);
 
-        if (error) {
-            txtMensaje.innerText = "❌ Error: " + error.message;
-            txtMensaje.style.color = "red";
-        } else {
-            txtMensaje.innerText = "✅ ¡Registrado con éxito!";
-            txtMensaje.style.color = "green";
-            // Limpiar campos
-            [inputNombre, inputDni, inputEmail, inputPass].forEach(i => i.value = "");
-            // Refrescar lista automáticamente
-            actualizarListaUsuarios();
+    if (error) {
+        console.error("Error detallado:", error);
+        if (msg) {
+            msg.innerText = "❌ Error: " + error.message;
+            msg.style.color = "red";
         }
     } else {
-        txtMensaje.innerText = "⚠️ Datos inválidos (Nombre min 2, Clave min 4)";
-        txtMensaje.style.color = "orange";
+        if (msg) {
+            msg.innerText = "✅ ¡Registro exitoso!";
+            msg.style.color = "green";
+        }
+        // Limpiamos los campos
+        (document.getElementById('reg-nombre') as HTMLInputElement).value = "";
+        (document.getElementById('reg-dni') as HTMLInputElement).value = "";
+        (document.getElementById('reg-email') as HTMLInputElement).value = "";
+        (document.getElementById('reg-pass') as HTMLInputElement).value = "";
     }
 });
-
-// Carga inicial
-actualizarListaUsuarios();
