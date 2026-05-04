@@ -1,4 +1,5 @@
 // tests/unit/usuario.test.ts
+import { describe, it, expect } from 'vitest';
 describe('Pruebas de Registro de Usuario - DEVpapois', () => {
   it('Debe validar un registro con nombre de 2 letras y clave de 4', () => {
     const user = new Usuario(null, 'Pr', 'pri@ucp.edu.ar', '1234');
