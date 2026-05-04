@@ -3,35 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UCP | Reservas Dinámicas DEVpapois</title>
+    <title>UCP | Coworking DEVpapois</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        :root { 
-            --primary: #004a99; 
-            --secondary: #3ecf8e; 
-            --bg: #f1f5f9; 
-            --error: #ef4444;
-            --success: #22c55e;
-        }
+        :root { --primary: #004a99; --secondary: #3ecf8e; --bg: #f1f5f9; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); color: #334155; padding-bottom: 2rem; }
         header { background: var(--primary); color: white; padding: 1.5rem 5%; font-weight: bold; font-size: 1.4rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        
-        .container { max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
-        
-        .form-card { background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); margin-bottom: 2rem; }
+        .container { max-width: 600px; margin: 2rem auto; padding: 0 1rem; }
+        .form-card { background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
         .form-group { margin-bottom: 1.2rem; }
-        
         label { display: block; margin-bottom: 8px; font-weight: 600; color: #64748b; font-size: 0.9rem; }
-        select, input { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; box-sizing: border-box; font-size: 1rem; transition: 0.3s; }
-        select:focus, input:focus { outline: none; border-color: var(--primary); ring: 2px var(--primary); }
-        
-        .btn { border: none; padding: 15px; border-radius: 8px; width: 100%; font-weight: bold; font-size: 1.1rem; cursor: pointer; transition: 0.3s; color: white; }
-        .btn-primary { background: var(--primary); }
-        .btn-secondary { background: var(--secondary); }
+        input { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; box-sizing: border-box; font-size: 1rem; }
+        .btn { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 8px; width: 100%; font-weight: bold; font-size: 1.1rem; cursor: pointer; transition: 0.3s; }
         .btn:hover { opacity: 0.9; transform: translateY(-1px); }
-
-        .reserva-item { background: white; margin-top: 10px; padding: 15px; border-radius: 10px; border-left: 5px solid var(--primary); display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .mensaje { font-weight: bold; margin-top: 10px; font-size: 0.9rem; }
+        #reg-mensaje { font-weight: bold; margin-top: 15px; text-align: center; }
     </style>
 </head>
 <body>
@@ -39,22 +24,22 @@
 <header>🏫 Sistema de Coworking DEVpapois</header>
 
 <div class="container">
-    
-    <!-- TARJETA 1: REGISTRO (Tarjeta #19) -->
     <div class="form-card">
         <h2 style="margin-top:0; color: var(--primary);">Crear Cuenta</h2>
-        <p style="color: #64748b; margin-bottom: 1.5rem;">Registrate para empezar a usar los espacios.</p>
+        <p style="color: #64748b; margin-bottom: 1.5rem;">Completá tus datos para registrarte en el sistema de la UCP.</p>
         
         <div class="form-group">
-            <label>👤 Nombre Completo</label>
-            <input type="text" id="reg-nombre" placeholder="Mínimo 2 letras">
+            <label>👤 Nombre y Apellido</label>
+            <input type="text" id="reg-nombre" placeholder="Ej: Priscila Galeano">
         </div>
-<div class="form-group">
-    <label>🪪 DNI (Obligatorio)</label>
-    <input type="number" id="reg-dni" placeholder="Tu número de documento">
-</div>
+
         <div class="form-group">
-            <label>📧 Correo Electrónico</label>
+            <label>🪪 DNI (Sin puntos)</label>
+            <input type="text" id="reg-dni" placeholder="Ej: 46478627">
+        </div>
+
+        <div class="form-group">
+            <label>📧 Correo electrónico</label>
             <input type="email" id="reg-email" placeholder="pri@ucp.edu.ar">
         </div>
 
@@ -63,182 +48,12 @@
             <input type="password" id="reg-password" placeholder="Mínimo 4 caracteres">
         </div>
 
-        <button id="btn-registrar" class="btn btn-primary">Registrarme</button>
-        <p id="reg-mensaje" class="mensaje"></p>
+        <button id="btn-registrar" class="btn">Registrarme</button>
+        <p id="reg-mensaje"></p>
     </div>
-
-    <!-- TARJETA 2: RESERVAS -->
-    <div class="form-card">
-        <h2 style="margin-top:0; color: var(--primary);">Nueva Reserva</h2>
-        
-        <div class="form-group">
-            <label>👤 ¿Quién reserva?</label>
-            <select id="select-usuario"><option>Cargando usuarios...</option></select>
-        </div>
-
-        <div class="form-group">
-            <label>📍 Seleccioná el Espacio</label>
-            <select id="select-recurso" onchange="verificarCapacidad()"><option>Cargando salas...</option></select>
-        </div>
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-            <div class="form-group">
-                <label>📅 Fecha</label>
-                <input type="date" id="input-fecha">
-            </div>
-            <div class="form-group">
-                <label>⏰ Hora de inicio</label>
-                <input type="time" id="input-hora">
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label>👥 Cantidad de personas (Máx: <span id="cap-max">--</span>)</label>
-            <input type="number" id="input-personas" min="1" value="1">
-        </div>
-
-        <button id="btn-reservar" class="btn btn-secondary">Confirmar Reserva</button>
-        <p id="res-mensaje" class="mensaje"></p>
-    </div>
-
-    <!-- LISTADO DE RESERVAS -->
-    <h3 style="margin-top: 2rem; color: #334155;">📋 Reservas del día</h3>
-    <div id="lista-reservas"></div>
 </div>
 
-<script>
-    // Configuración de Supabase
-    const URL_SB = 'https://wybiblrhcphwuhrmgkhv.supabase.co';
-    const KEY_SB = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind5YmlibHJoY3Bod3Vocm1na2h2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwOTYxOTUsImV4cCI6MjA4OTY3MjE5NX0.qiBG-FqFhI8IaRqlTT-qb10qHQ2SEJrnZ_Djh49VvyA';
-    const client = supabase.createClient(URL_SB, KEY_SB);
-
-    let salas = [];
-
-    // --- FUNCIONES DE CARGA ---
-    async function inicializar() {
-        // Cargar Usuarios para el select
-        const { data: users } = await client.from('usuarios').select('id, nombre').order('nombre');
-        const selUser = document.getElementById('select-usuario');
-        selUser.innerHTML = '<option value="">-- Seleccioná tu usuario --</option>';
-        if(users) users.forEach(u => selUser.innerHTML += `<option value="${u.id}">${u.nombre}</option>`);
-
-        // Cargar Salas
-        const { data: recs } = await client.from('recursos').select('*');
-        salas = recs;
-        const selRec = document.getElementById('select-recurso');
-        selRec.innerHTML = '<option value="">-- Seleccioná un espacio --</option>';
-        if(recs) recs.forEach(r => selRec.innerHTML += `<option value="${r.id}">${r.nombre} (${r.tipo})</option>`);
-        
-        document.getElementById('input-fecha').valueAsDate = new Date();
-        actualizarLista();
-    }
-
-    function verificarCapacidad() {
-        const idSala = document.getElementById('select-recurso').value;
-        const sala = salas.find(s => s.id == idSala);
-        if (sala) {
-            document.getElementById('cap-max').innerText = sala.capacidad_maxima;
-            document.getElementById('input-personas').max = sala.capacidad_maxima;
-        }
-    }
-
-    // --- LÓGICA DE REGISTRO (Tarjeta #19) ---
-    document.getElementById('btn-registrar').addEventListener('click', async () => {
-        const nombre = document.getElementById('reg-nombre').value;
-        const email = document.getElementById('reg-email').value;
-        const password = document.getElementById('reg-password').value;
-        const mensaje = document.getElementById('reg-mensaje');
-
-        // Aplicamos la lógica validada: nombre mín 2, clave mín 4
-        if (nombre.length < 2 || password.length < 4 || !email.includes('@')) {
-            mensaje.innerText = "❌ Error: Nombre (min 2), Clave (min 4) o Email inválido.";
-            mensaje.style.color = "var(--error)";
-            return;
-        }
-
-        const { error } = await client.from('usuarios').insert([
-            { nombre, email, password, rol: 'cliente' }
-        ]);
-
-        if (error) {
-            mensaje.innerText = "⚠️ Error: " + error.message;
-            mensaje.style.color = "orange";
-        } else {
-            mensaje.innerText = "✅ ¡Registro exitoso! Ahora podés reservar.";
-            mensaje.style.color = "var(--success)";
-            document.getElementById('reg-nombre').value = '';
-            document.getElementById('reg-email').value = '';
-            document.getElementById('reg-password').value = '';
-            inicializar(); // Recargamos la lista de usuarios en el select
-        }
-    });
-
-    // --- LÓGICA DE RESERVAS ---
-    document.getElementById('btn-reservar').addEventListener('click', async () => {
-        const res = {
-            usuario_id: document.getElementById('select-usuario').value,
-            recurso_id: document.getElementById('select-recurso').value,
-            fecha: document.getElementById('input-fecha').value,
-            hora_inicio: document.getElementById('input-hora').value,
-            cantidad_personas: document.getElementById('input-personas').value,
-            esta_reservado: true,
-            confirmado: true
-        };
-
-        const mensaje = document.getElementById('res-mensaje');
-
-        if (!res.usuario_id || !res.recurso_id || !res.hora_inicio) {
-            mensaje.innerText = "⚠️ Completá todos los campos de reserva.";
-            mensaje.style.color = "var(--error)";
-            return;
-        }
-
-        const { error } = await client.from('turnos').insert([res]);
-
-        if (error) {
-            mensaje.innerText = "❌ Error al agendar: " + error.message;
-            mensaje.style.color = "var(--error)";
-        } else {
-            mensaje.innerText = "✅ ¡Turno agendado con éxito!";
-            mensaje.style.color = "var(--success)";
-            actualizarLista();
-        }
-    });
-
-    async function actualizarLista() {
-        const fecha = document.getElementById('input-fecha').value;
-        const { data } = await client
-            .from('turnos')
-            .select('hora_inicio, cantidad_personas, recursos(nombre), usuarios(nombre)')
-            .eq('fecha', fecha)
-            .order('hora_inicio');
-
-        const lista = document.getElementById('lista-reservas');
-        lista.innerHTML = '';
-        
-        if (!data || data.length === 0) {
-            lista.innerHTML = '<p style="color: #94a3b8;">No hay reservas para la fecha seleccionada.</p>';
-            return;
-        }
-        
-        data.forEach(r => {
-            lista.innerHTML += `
-                <div class="reserva-item">
-                    <div>
-                        <strong>${r.hora_inicio.slice(0,5)} hs</strong> - ${r.recursos.nombre}<br>
-                        <small>👤 Por: ${r.usuarios.nombre}</small>
-                    </div>
-                    <div style="font-weight: bold; color: var(--primary);">👥 ${r.cantidad_personas} pers.</div>
-                </div>
-            `;
-        });
-    }
-
-    // Escuchar cambios en la fecha para actualizar la lista automáticamente
-    document.getElementById('input-fecha').addEventListener('change', actualizarLista);
-
-    inicializar();
-</script>
-
+<!-- El script de conexión se maneja en main.ts -->
+<script type="module" src="../src/main.ts"></script>
 </body>
 </html>
