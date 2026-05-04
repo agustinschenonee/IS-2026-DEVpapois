@@ -47,8 +47,19 @@ btnLogin?.addEventListener('click', async () => {
             txtMensajeLogin.innerText = `✅ ¡Bienvenido de nuevo, ${data.nombre}! Entrando a DEVpapois...`;
             txtMensajeLogin.style.color = "green";
             
-            // Acá en el futuro agregaremos el redireccionamiento al panel:
-            // window.location.href = "panel-turnos.html";
+} else {
+        // Si hay 'data', el usuario es real y los datos están bien
+        console.log("¡Usuario logueado exitosamente!", data);
+        if (txtMensajeLogin) {
+            // Usamos data.nombre para saludarlo por su nombre (¡un toque de UX genial!)
+            txtMensajeLogin.innerText = `✅ ¡Bienvenido de nuevo, ${data.nombre}! Entrando a DEVpapois...`;
+            txtMensajeLogin.style.color = "green";
+            
+            // LA MAGIA: Esperamos 1 segundo para que lea el mensaje, y lo mandamos al panel
+            setTimeout(() => {
+                window.location.href = "panel.html";
+            }, 1000);
         }
     }
 });
+        
