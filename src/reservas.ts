@@ -1,11 +1,13 @@
 import { supabase } from './supabase';
+
 declare global {
   interface Window {
     reservarTurno: (idTurno: number) => Promise<void>;
   }
 }
+
+// 1. Función para saludar
 function mostrarBienvenida() {
-    // Recuperamos el nombre que guardamos recién en el login
     const nombreGuardado = localStorage.getItem('usuario_nombre');
     const elementoSaludo = document.getElementById('saludo-usuario');
     
@@ -14,31 +16,23 @@ function mostrarBienvenida() {
     }
 }
 
-// Asegurate de que se ejecute cuando cargue la página
-document.addEventListener('DOMContentLoaded', () => {
-    mostrarBienvenida();
-    cargarTurnosDisponibles(); // La función que ya tenías
-});
+// 2. Función para traer los turnos de Supabase
 async function cargarTurnosDisponibles() {
-    // 1. Consultamos la tabla 'turnos' usando tus nombres exactos de columna
     const { data, error } = await supabase
         .from('turnos')
         .select('*')
-        .eq('esta_reservado', false); // Solo los que están libres
+        .eq('esta_reservado', false);
 
     if (error) {
-        console.error("Error al traer los turnos de la DB:", error.message);
+        console.error("Error al traer los turnos:", error.message);
         return;
     }
 
     const contenedor = document.getElementById('lista-turnos');
-    
     if (contenedor && data) {
         contenedor.innerHTML = ""; 
-
         data.forEach(turno => {
             const card = document.createElement('div');
-            // Un poco de estilo rápido para que no quede amontonado
             card.style.border = "1px solid #444";
             card.style.padding = "15px";
             card.style.marginBottom = "10px";
@@ -65,11 +59,15 @@ async function cargarTurnosDisponibles() {
     }
 }
 
-// Ejecutamos al cargar
-document.addEventListener('DOMContentLoaded', cargarTurnosDisponibles);
+// 3. Ejecutar todo al cargar la página (UN SOLO LISTENER)
+document.addEventListener('DOMContentLoaded', () => {
+    mostrarBienvenida();
+    cargarTurnosDisponibles();
+});
+
+// 4. Lógica para el botón Reservar
 window.reservarTurno = async (idTurno: number) => {
     const confirmacion = confirm("¿Estás seguro que querés reservar este turno?");
-    
     if (confirmacion) {
         const { data, error } = await supabase
             .from('turnos')
