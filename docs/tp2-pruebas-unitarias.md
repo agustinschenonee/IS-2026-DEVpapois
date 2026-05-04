@@ -1,6 +1,6 @@
-## B0. Investigación previa
+# B0. Investigación previa
 
-### 1. ¿Qué es una clase de equivalencia y cómo se aplica para diseñar casos de prueba?
+## 1. ¿Qué es una clase de equivalencia y cómo se aplica para diseñar casos de prueba?
 
 La técnica de clases de equivalencia es un tipo de prueba funcional, donde en cada caso de prueba se agrupa el mayor número de entradas posibles. A partir de ahí, se asume que la prueba de un valor representativo de cada clase permite suponer que el resultado que se obtiene con él será el mismo que con cualquier otro valor de la clase.
 
@@ -35,7 +35,7 @@ En cualquier caso, si se sospecha que ciertos elementos de una clase no se trata
 
 ---
 
-### 2. ¿Qué es un *valor límite*?
+## 2. ¿Qué es un *valor límite*?
 
 El *AVL (Análisis de valores límite)* es una técnica de diseño de casos de prueba que complementa a la de particiones de equivalencia. 
 
@@ -51,9 +51,9 @@ La principal diferencia se encuentra en el tratamiento que tienen las clases de 
 ---
 
 
-## B1. Pruebas unitarias con TDD
+# B1. Pruebas unitarias con TDD
 
-### Diseño de Casos de Prueba - Turno.ts
+## Diseño de Casos de Prueba - Turno.ts
 
 La clase bajo prueba es Turno, la cual representa la entidad principal de reserva.
 
@@ -72,7 +72,7 @@ Elegimos realizar pruebas unitarias sobre los métodos de validación de la clas
 | **05** | `validarRecurso()` | Valor Límite (Borde) | recursoId: 0 | **false** (Rechazado). |
 | **06** | `validarRecurso()` | Partición de Equivalencia | recursoId: -5 | **false** (Rechazado). |
 
-### Diseño de Casos de Prueba - ValidadorOcupacion.ts
+## Diseño de Casos de Prueba - ValidadorOcupacion.ts
 
 La función bajo prueba es verificarDisponibilidad, la cual se encarga de detectar traslapes de horarios para un recurso específico en una fecha determinada. El algoritmo utiliza la lógica: (A_inicio < B_fin) Y (A_fin > B_inicio).
 
