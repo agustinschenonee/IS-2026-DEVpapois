@@ -1,6 +1,6 @@
-### B0. Investigación previa
+## B0. Investigación previa
 
-**1. ¿Qué es una clase de equivalencia y cómo se aplica para diseñar casos de prueba?**
+### 1. ¿Qué es una clase de equivalencia y cómo se aplica para diseñar casos de prueba?
 
 La técnica de clases de equivalencia es un tipo de prueba funcional, donde en cada caso de prueba se agrupa el mayor número de entradas posibles. A partir de ahí, se asume que la prueba de un valor representativo de cada clase permite suponer que el resultado que se obtiene con él será el mismo que con cualquier otro valor de la clase.
 
@@ -35,7 +35,7 @@ En cualquier caso, si se sospecha que ciertos elementos de una clase no se trata
 
 ---
 
-**2. ¿Qué es un *valor límite*?**
+### 2. ¿Qué es un *valor límite*?
 
 El *AVL (Análisis de valores límite)* es una técnica de diseño de casos de prueba que complementa a la de particiones de equivalencia. 
 
@@ -50,19 +50,38 @@ La principal diferencia se encuentra en el tratamiento que tienen las clases de 
 
 ---
 
-### Análisis de Aplicación Técnica
 
-En nuestro proyecto desarrollado en **TypeScript**, la aplicación de estas técnicas varía según el tipo de dato:
+## B1. Pruebas unitarias con TDD
 
-**Valores Reales (Float/Number):**
-Si estuviéramos validando el precio de una reserva con descuento donde `x > 5.0`, los valores límite serían `4.99` (inválido) y `5.01` (válido). Esto es crítico para asegurar que los cálculos de impuestos y descuentos no fallen por decimales.
+### Diseño de Casos de Prueba - Turno.ts
 
-**Valores Enteros (Integer):**
-Para la asignación de escritorios en un sector (ej. ID de escritorio entre 1 y 50), los valores límite según la experiencia son los que tienen mayor probabilidad de éxito para encontrar defectos. Probaremos:
-    * **Fuera de rango:** `0` y `51`.
-    * **En el borde:** `1` y `50`.
-    * **Dentro del borde:** `2` y `49`.
+La clase bajo prueba es Turno, la cual representa la entidad principal de reserva.
 
----
-### B1. Pruebas unitarias con TDD
+Elegimos realizar pruebas unitarias sobre los métodos de validación de la clase Turno para asegurar la integridad de los datos antes de su persistencia.
+
+* **validarUsuario():** Se encarga de asegurar que el nombre del cliente cumpla con una longitud mínima de 3 caracteres para garantizar datos de contacto válidos.
+
+* **validarRecurso():** Verifica que el identificador del recurso (sala o escritorio) sea un número entero positivo mayor a cero, asegurando la integridad referencial con la base de datos.
+
+| ID | Método bajo prueba | Técnica aplicada | Datos de entrada (Nueva Reserva vs Existente) | Resultado esperado |
+| :--- | :--- | :--- | :--- | :--- |
+| **01** | `validarUsuario()` | Partición de Equivalencia | usuario: "AgustinSch" | **true** (Aceptado). |
+| **02** | `validarUsuario()` | Valor Límite (Mínimo) | usuario: "Ag" | **false** (Rechazado). |
+| **03** | `validarUsuario()` | Partición de Equivalencia | usuario: "" | **false** (Rechazado). |
+| **04** | `validarRecurso()` | Valor Límite (Mínimo) | recursoId: 1 | **true** (Aceptado). |
+| **05** | `validarRecurso()` | Valor Límite (Borde) | recursoId: 0 | **false** (Rechazado). |
+| **06** | `validarRecurso()` | Partición de Equivalencia | recursoId: -5 | **false** (Rechazado). |
+
+### Diseño de Casos de Prueba - ValidadorOcupacion.ts
+
+La función bajo prueba es verificarDisponibilidad, la cual se encarga de detectar traslapes de horarios para un recurso específico en una fecha determinada. El algoritmo utiliza la lógica: (A_inicio < B_fin) Y (A_fin > B_inicio).
+
+| ID | Método bajo prueba | Técnica aplicada | Datos de entrada (Nueva Reserva vs Existente) | Resultado esperado |
+| :--- | :--- | :--- | :--- | :--- |
+| **07** | `verificarDisponibilidad` | Clase Equivalencia Válida | **Entrada:** 12:00 - 13:00 <br> **Existente:** 10:00 - 11:00 | **True** (Disponible: el horario es posterior y no hay choque). |
+| **08** | `verificarDisponibilidad` | Valor Límite (AVL) | **Entrada:** 11:00 - 12:00 <br> **Existente:** 10:00 - 11:00 | **True** (Disponible: empieza justo cuando el anterior termina). |
+| **09** | `verificarDisponibilidad` | Clase Equivalencia Inválida | **Entrada:** 10:30 - 11:30 <br> **Existente:** 10:00 - 11:00 | **False** (Ocupado: hay un traslape parcial al final). |
+| **10** | `verificarDisponibilidad` | Clase Equivalencia Inválida | **Entrada:** 09:00 - 12:00 <br> **Existente:** 10:00 - 11:00 | **False** (Ocupado: la nueva reserva engloba totalmente a la existente). |
+| **11** | `verificarDisponibilidad` | Valor Límite (AVL) | **Entrada:** 10:00 - 11:00 <br> **Existente:** 10:00 - 11:00 | **False** (Ocupado: los horarios son idénticos). |
+| **12** | `verificarDisponibilidad` | Clase Equivalencia Válida | **Entrada:** 15:00 - 16:00 <br> **Existente:** (Sin turnos previos) | **True** (Disponible: la lista de turnos en esa fecha está vacía). |
 
