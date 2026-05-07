@@ -2,37 +2,26 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Prueba de Login - DEVpapois</title>
+    <title>Login - DEVpapois</title>
 </head>
-<body>
+<body style="font-family: sans-serif; text-align: center; padding-top: 50px;">
     <h2>Laboratorio de Pruebas: Login DEVpapois</h2>
     
-    <!-- Estos IDs son los que el TypeScript está buscando -->
     <label>Correo Electrónico:</label><br>
     <input type="email" id="login-email" placeholder="ejemplo@correo.com"><br><br>
 
     <label>Contraseña:</label><br>
     <input type="password" id="login-pass" placeholder="Tu contraseña"><br><br>
 
-<button id="btn-login">Iniciar Sesión de Prueba</button>
+    <button id="btn-login" style="padding: 10px 20px; cursor: pointer;">Iniciar Sesión</button>
 
-    <!-- Agregamos este salto de línea y el enlace que lleva a tu otra pantalla -->
-    <br><br>
     <div style="margin-top: 15px;">
         <span>¿No tenés cuenta en DEVpapois? </span>
-        <a href="index.html" style="color: blue; text-decoration: underline; cursor: pointer;">Registrate acá</a>
+        <a href="../index.html" style="color: blue; text-decoration: underline;">Registrate acá</a>
     </div>
 
-    <p id="mensaje-login" style="font-weight: bold;"></p>
+    <p id="mensaje-login" style="font-weight: bold; margin-top: 20px;"></p>
 
-    <!-- Tu script que conecta con TypeScript -->
-    <script type="module" src="../src/AuthService.ts"></script> 
-</body>
-</html>
-    <p id="mensaje-login" style="font-weight: bold;"></p>
-
-    <!-- ¡Importante! Asegurate de que la ruta apunte al archivo donde pusiste el código TypeScript de la respuesta anterior -->
-    <script type="module" src="/src/login.ts"></script> 
-<script type="module" src="/src/login.ts"></script>
+    <script type="module" src="../src/login.ts"></script>
 </body>
 </html>
