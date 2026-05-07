@@ -4,67 +4,56 @@ const btnLogin = document.getElementById('btn-login');
 const txtMensajeLogin = document.getElementById('mensaje-login');
 
 btnLogin?.addEventListener('click', async () => {
-    // 1. Capturamos y limpiamos espacios
     const emailVal = (document.getElementById('login-email') as HTMLInputElement).value.trim();
     const passVal = (document.getElementById('login-pass') as HTMLInputElement).value.trim();
 
     if (!emailVal || !passVal) {
         if (txtMensajeLogin) {
-            txtMensajeLogin.innerText = "⚠️ Por favor, ingresá tu correo y contraseña.";
+            txtMensajeLogin.innerText = "⚠️ Completá los datos.";
             txtMensajeLogin.style.color = "orange";
         }
         return;
     }
 
-    if (txtMensajeLogin) {
-        txtMensajeLogin.innerText = "⏳ Verificando credenciales...";
-        txtMensajeLogin.style.color = "blue";
-    }
+    if (txtMensajeLogin) txtMensajeLogin.innerText = "⏳ Verificando...";
 
-    // 2. BUSCAMOS EN LA TABLA DE ADMINISTRACIÓN (Con los nombres nuevos)
-    const { data: admin, error: errorAdmin } = await supabase
+    // 1. Intentamos en la tabla administracion
+    const { data: admin } = await supabase
         .from('administracion') 
         .select('*')
         .eq('email', emailVal)
         .eq('password', passVal)
-        .maybeSingle(); // Usamos maybeSingle para que no explote si no hay datos
+        .maybeSingle();
 
     if (admin) {
-        localStorage.setItem('usuario_nombre', admin.nombre);
-        localStorage.setItem('usuario_email', emailVal);
-        localStorage.setItem('rol', 'admin'); 
-        irAlPanel(admin.nombre);
+        loguear(admin.nombre, 'admin');
         return;
     }
 
-    // 3. SI NO ES ADMIN, BUSCAMOS EN USUARIOS (Ajustá los nombres de columnas si hace falta)
+    // 2. Si no es admin, intentamos en usuarios
     const { data: usuario } = await supabase
-        .from('Usuarios')
+        .from('usuarios') 
         .select('*')
-        .eq('email', emailVal) // Si en Usuarios también se llama distinto, cambialo acá
+        .eq('email', emailVal)
         .eq('password', passVal)
         .maybeSingle();
 
     if (usuario) {
-        localStorage.setItem('usuario_nombre', usuario.nombre);
-        localStorage.setItem('usuario_email', emailVal);
-        localStorage.setItem('rol', 'usuario');
-        irAlPanel(usuario.nombre);
+        loguear(usuario.nombre, 'usuario');
     } else {
         if (txtMensajeLogin) {
-            txtMensajeLogin.innerText = "❌ Los datos no coinciden. Revisá e intentá de nuevo.";
+            txtMensajeLogin.innerText = "❌ Datos incorrectos.";
             txtMensajeLogin.style.color = "red";
         }
     }
 });
 
-function irAlPanel(nombre: string) {
+function loguear(nombre: string, rol: string) {
     if (txtMensajeLogin) {
-        txtMensajeLogin.innerText = `✅ ¡Hola ${nombre}! Entrando al sistema...`;
+        txtMensajeLogin.innerText = `✅ ¡Hola ${nombre}! Entrando...`;
         txtMensajeLogin.style.color = "green";
-        
-        setTimeout(() => {
-            window.location.href = "panel.html";
-        }, 1000);
+        localStorage.setItem('usuario_nombre', nombre);
+        localStorage.setItem('rol', rol);
+        setTimeout(() => { window.location.href = "panel.html"; }, 1000);
     }
 }
