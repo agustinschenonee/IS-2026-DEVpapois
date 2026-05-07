@@ -4,7 +4,7 @@ const btnLogin = document.getElementById('btn-login');
 const txtMensajeLogin = document.getElementById('mensaje-login');
 
 btnLogin?.addEventListener('click', async () => {
-    // 1. Capturamos lo que escribiste
+    // 1. Capturamos y limpiamos espacios
     const emailVal = (document.getElementById('login-email') as HTMLInputElement).value.trim();
     const passVal = (document.getElementById('login-pass') as HTMLInputElement).value.trim();
 
@@ -16,45 +16,34 @@ btnLogin?.addEventListener('click', async () => {
         return;
     }
 
-    // --- SECCIÓN DE CONTROL (Para ver en F12) ---
-    console.log("Intentando entrar con Email:", emailVal);
-    console.log("Intentando entrar con Pass:", passVal);
-
     if (txtMensajeLogin) {
-        txtMensajeLogin.innerText = "⏳ Verificando en la base de datos...";
+        txtMensajeLogin.innerText = "⏳ Verificando credenciales...";
         txtMensajeLogin.style.color = "blue";
     }
 
-    // 2. BUSCAMOS EN LA TABLA DE ADMINISTRACIÓN (La de tu foto)
-    // Probamos primero con esta porque sos la admin
+    // 2. BUSCAMOS EN LA TABLA DE ADMINISTRACIÓN (Con los nombres nuevos)
     const { data: admin, error: errorAdmin } = await supabase
-        .from('Administración') 
+        .from('administracion') 
         .select('*')
-        .eq('Correo electrónico', emailVal)
-        .eq('contraseña', passVal)
-        .single();
-
-    // --- SECCIÓN DE DEBUG ---
-    if (errorAdmin) {
-        console.warn("Aviso en tabla Administración:", errorAdmin.message);
-    }
-    console.log("Datos encontrados en Administración:", admin);
+        .eq('email', emailVal)
+        .eq('password', passVal)
+        .maybeSingle(); // Usamos maybeSingle para que no explote si no hay datos
 
     if (admin) {
         localStorage.setItem('usuario_nombre', admin.nombre);
         localStorage.setItem('usuario_email', emailVal);
         localStorage.setItem('rol', 'admin'); 
         irAlPanel(admin.nombre);
-        return; // Si te encontró acá, ya no busca en la otra
+        return;
     }
 
-    // 3. SI NO SOS ADMIN, BUSCAMOS EN LA TABLA DE USUARIOS
-    let { data: usuario, error: errorUser } = await supabase
+    // 3. SI NO ES ADMIN, BUSCAMOS EN USUARIOS (Ajustá los nombres de columnas si hace falta)
+    const { data: usuario } = await supabase
         .from('Usuarios')
         .select('*')
-        .eq('Correo electrónico', emailVal)
-        .eq('contraseña', passVal)
-        .single();
+        .eq('email', emailVal) // Si en Usuarios también se llama distinto, cambialo acá
+        .eq('password', passVal)
+        .maybeSingle();
 
     if (usuario) {
         localStorage.setItem('usuario_nombre', usuario.nombre);
@@ -63,7 +52,7 @@ btnLogin?.addEventListener('click', async () => {
         irAlPanel(usuario.nombre);
     } else {
         if (txtMensajeLogin) {
-            txtMensajeLogin.innerText = "❌ Correo o contraseña incorrectos.";
+            txtMensajeLogin.innerText = "❌ Los datos no coinciden. Revisá e intentá de nuevo.";
             txtMensajeLogin.style.color = "red";
         }
     }
@@ -71,7 +60,7 @@ btnLogin?.addEventListener('click', async () => {
 
 function irAlPanel(nombre: string) {
     if (txtMensajeLogin) {
-        txtMensajeLogin.innerText = `✅ ¡Hola ${nombre}! Entrando...`;
+        txtMensajeLogin.innerText = `✅ ¡Hola ${nombre}! Entrando al sistema...`;
         txtMensajeLogin.style.color = "green";
         
         setTimeout(() => {
