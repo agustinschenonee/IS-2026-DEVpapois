@@ -1,15 +1,13 @@
-import { supabase } from './supabase'; // Ajustá la ruta según dónde tengas este archivo
+import { supabase } from './supabase'; 
 
-// Asumimos que tu compañero va a crear estos IDs en el HTML del login
 const btnLogin = document.getElementById('btn-login');
 const txtMensajeLogin = document.getElementById('mensaje-login');
 
 btnLogin?.addEventListener('click', async () => {
-    // 1. Capturamos lo que el usuario escribió
+    // 1. Capturamos lo que escribió el usuario
     const emailVal = (document.getElementById('login-email') as HTMLInputElement).value;
     const passVal = (document.getElementById('login-pass') as HTMLInputElement).value;
 
-    // Validación rápida
     if (!emailVal || !passVal) {
         if (txtMensajeLogin) {
             txtMensajeLogin.innerText = "⚠️ Por favor, ingresá tu correo y contraseña.";
@@ -23,37 +21,54 @@ btnLogin?.addEventListener('click', async () => {
         txtMensajeLogin.style.color = "blue";
     }
 
-    // 2. La consulta a la base de datos (Acá ocurre la magia de verdad)
-    const { data, error } = await supabase
+    // 2. BUSCAMOS EN LA TABLA DE USUARIOS COMUNES
+    let { data: usuario, error: errorUser } = await supabase
         .from('Usuarios')
-        .select('*') // Traemos toda la info de ese usuario
-        .eq('Correo electrónico', emailVal) // Filtramos por el mail que escribió...
-        .eq('contraseña', passVal)          // ...Y que la contraseña coincida
-        .single(); // single() nos asegura que traiga un solo registro o tire error si no existe
+        .select('*')
+        .eq('Correo electrónico', emailVal)
+        .eq('contraseña', passVal)
+        .single();
 
-    // 3. Manejamos la puerta: ¿Pasa o no pasa?
-    if (error || !data) {
-        // Si Supabase devuelve error, es porque no encontró esa combinación
-        console.error("Intento fallido:", error?.message);
+    if (usuario) {
+        // Encontrado en Usuarios
+        localStorage.setItem('usuario_nombre', usuario.nombre);
+        localStorage.setItem('usuario_email', emailVal);
+        localStorage.setItem('rol', 'usuario');
+        irAlPanel(usuario.nombre);
+        return;
+    }
+
+    // 3. BUSCAMOS EN LA TABLA DE ADMINISTRACIÓN (La de tu foto)
+    let { data: admin, error: errorAdmin } = await supabase
+        .from('Administración') 
+        .select('*')
+        .eq('Correo electrónico', emailVal)
+        .eq('contraseña', passVal)
+        .single();
+
+    if (admin) {
+        // Encontrado en Administración
+        localStorage.setItem('usuario_nombre', admin.nombre);
+        localStorage.setItem('usuario_email', emailVal);
+        localStorage.setItem('rol', 'admin'); 
+        irAlPanel(admin.nombre);
+    } else {
+        // No está en ninguna tabla
         if (txtMensajeLogin) {
             txtMensajeLogin.innerText = "❌ Correo o contraseña incorrectos.";
             txtMensajeLogin.style.color = "red";
         }
-    } else {
-        // Si hay 'data', el usuario es real y los datos están bien
-        console.log("¡Usuario logueado exitosamente!", data);
-        if (txtMensajeLogin) {
-            // Usamos data.nombre para saludarlo por su nombre
-            txtMensajeLogin.innerText = `✅ ¡Bienvenido de nuevo, ${data.nombre}! Entrando a DEVpapois...`;
-            txtMensajeLogin.style.color = "green";
-           // Guardamos el nombre y el mail para usarlos después
-localStorage.setItem('usuario_nombre', data.nombre);
-localStorage.setItem('usuario_email', emailVal); 
-localStorage.setItem('usuario_id', data.id); // Si tenés el ID en la tabla Usuarios 
-            // LA MAGIA: Esperamos 1 segundo para que lea el mensaje, y lo mandamos al panel
-            setTimeout(() => {
-                window.location.href = "panel.html";
-            }, 1000);
-        }
     }
 });
+
+// Función para mostrar el saludo y redireccionar
+function irAlPanel(nombre: string) {
+    if (txtMensajeLogin) {
+        txtMensajeLogin.innerText = `✅ ¡Hola ${nombre}! Entrando...`;
+        txtMensajeLogin.style.color = "green";
+        
+        setTimeout(() => {
+            window.location.href = "panel.html";
+        }, 1000);
+    }
+}
