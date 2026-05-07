@@ -4,9 +4,9 @@ const btnLogin = document.getElementById('btn-login');
 const txtMensajeLogin = document.getElementById('mensaje-login');
 
 btnLogin?.addEventListener('click', async () => {
-    // 1. Capturamos lo que escribió el usuario
-    const emailVal = (document.getElementById('login-email') as HTMLInputElement).value;
-    const passVal = (document.getElementById('login-pass') as HTMLInputElement).value;
+    // 1. Capturamos lo que escribiste
+    const emailVal = (document.getElementById('login-email') as HTMLInputElement).value.trim();
+    const passVal = (document.getElementById('login-pass') as HTMLInputElement).value.trim();
 
     if (!emailVal || !passVal) {
         if (txtMensajeLogin) {
@@ -16,12 +16,39 @@ btnLogin?.addEventListener('click', async () => {
         return;
     }
 
+    // --- SECCIÓN DE CONTROL (Para ver en F12) ---
+    console.log("Intentando entrar con Email:", emailVal);
+    console.log("Intentando entrar con Pass:", passVal);
+
     if (txtMensajeLogin) {
-        txtMensajeLogin.innerText = "⏳ Verificando datos...";
+        txtMensajeLogin.innerText = "⏳ Verificando en la base de datos...";
         txtMensajeLogin.style.color = "blue";
     }
 
-    // 2. BUSCAMOS EN LA TABLA DE USUARIOS COMUNES
+    // 2. BUSCAMOS EN LA TABLA DE ADMINISTRACIÓN (La de tu foto)
+    // Probamos primero con esta porque sos la admin
+    const { data: admin, error: errorAdmin } = await supabase
+        .from('Administración') 
+        .select('*')
+        .eq('Correo electrónico', emailVal)
+        .eq('contraseña', passVal)
+        .single();
+
+    // --- SECCIÓN DE DEBUG ---
+    if (errorAdmin) {
+        console.warn("Aviso en tabla Administración:", errorAdmin.message);
+    }
+    console.log("Datos encontrados en Administración:", admin);
+
+    if (admin) {
+        localStorage.setItem('usuario_nombre', admin.nombre);
+        localStorage.setItem('usuario_email', emailVal);
+        localStorage.setItem('rol', 'admin'); 
+        irAlPanel(admin.nombre);
+        return; // Si te encontró acá, ya no busca en la otra
+    }
+
+    // 3. SI NO SOS ADMIN, BUSCAMOS EN LA TABLA DE USUARIOS
     let { data: usuario, error: errorUser } = await supabase
         .from('Usuarios')
         .select('*')
@@ -30,30 +57,11 @@ btnLogin?.addEventListener('click', async () => {
         .single();
 
     if (usuario) {
-        // Encontrado en Usuarios
         localStorage.setItem('usuario_nombre', usuario.nombre);
         localStorage.setItem('usuario_email', emailVal);
         localStorage.setItem('rol', 'usuario');
         irAlPanel(usuario.nombre);
-        return;
-    }
-
-    // 3. BUSCAMOS EN LA TABLA DE ADMINISTRACIÓN (La de tu foto)
-    let { data: admin, error: errorAdmin } = await supabase
-        .from('Administración') 
-        .select('*')
-        .eq('Correo electrónico', emailVal)
-        .eq('contraseña', passVal)
-        .single();
-
-    if (admin) {
-        // Encontrado en Administración
-        localStorage.setItem('usuario_nombre', admin.nombre);
-        localStorage.setItem('usuario_email', emailVal);
-        localStorage.setItem('rol', 'admin'); 
-        irAlPanel(admin.nombre);
     } else {
-        // No está en ninguna tabla
         if (txtMensajeLogin) {
             txtMensajeLogin.innerText = "❌ Correo o contraseña incorrectos.";
             txtMensajeLogin.style.color = "red";
@@ -61,7 +69,6 @@ btnLogin?.addEventListener('click', async () => {
     }
 });
 
-// Función para mostrar el saludo y redireccionar
 function irAlPanel(nombre: string) {
     if (txtMensajeLogin) {
         txtMensajeLogin.innerText = `✅ ¡Hola ${nombre}! Entrando...`;
