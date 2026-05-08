@@ -283,7 +283,28 @@ La estructura de la función autoejecutable (bootstrap) para iniciar las pruebas
 
 *Orquestación de Servicios:* Se reemplazó la lógica directa de Supabase por llamadas a los servicios creados (AdminService, TurnoService), aplicando el principio de abstracción.
 
-*Logs de Trazabilidad:* Se agregaron etiquetas de consola con los números de tarea (#12, #17, #18, #20) para facilitar la auditoría y corrección por parte de los docentes.
+**##Entrada 08 — Semana 6
+Fecha: 08/05/2026
+Herramienta: Gemini
+Responsable: QA Lead — [Carabajal Valentina, Grasiozetti Luciano]
+Eje temático: Eje 3**
+
+**¿Para qué se usó?** 
+Generar y estructurar pruebas unitarias con Vitest para validar el comportamiento de los servicios, entidades y patrones implementados en el sistema.
+
+**¿Qué generó la IA?** 
+Una propuesta de múltiples archivos de testing automatizado para módulos como AuthService, AdminService, Escritorio, Notificadores y la interfaz Observador, incluyendo mocks de Supabase y simulaciones de distintos escenarios funcionales y de límite.
+
+**¿Qué aceptamos tal cual?**
+La estructura base de los tests con describe/it, el uso de mocks con Vitest y la organización de los casos de prueba siguiendo criterios de validación funcional y manejo de errores.
+
+**¿Qué modificamos y por qué?**
+
+Mocking de Servicios: Se ajustaron los mocks de Supabase y AuthService para adaptarlos a la arquitectura real del proyecto y asegurar compatibilidad con los servicios implementados.
+
+Casos de Límite: Se agregaron pruebas adicionales para validar comportamientos extremos, como mensajes vacíos, usuarios inexistentes y objetos sin ID asignado, mejorando la cobertura del sistema.
+
+Trazabilidad Académica: Se incorporó numeración de casos de prueba dentro de cada archivo para facilitar la revisión docente y la identificación de evidencias durante las correcciones.
 
 **¿Qué descartamos y por qué?**
-Se descartaron las credenciales de Supabase hardcodeadas que propuso la IA originalmente, utilizando en su lugar la instancia centralizada en el archivo de configuración del proyecto.
+Se descartaron ejemplos genéricos de conexión directa a base de datos y lógica acoplada dentro de los tests, reemplazándolos por mocks para mantener independencia entre pruebas y evitar dependencias externas durante la ejecución.
