@@ -286,7 +286,7 @@ La estructura de la función autoejecutable (bootstrap) para iniciar las pruebas
 ---
 
 ## Entrada 08 — Semana 6
-**Fecha: 08/05/2026
+**Fecha: 25/04/2026
 Herramienta: Gemini
 Responsable: QA Lead — [Carabajal Valentina, Grasiozetti Luciano]
 Eje temático: Eje 3**
@@ -310,3 +310,31 @@ Trazabilidad Académica: Se incorporó numeración de casos de prueba dentro de 
 
 **¿Qué descartamos y por qué?**
 Se descartaron ejemplos genéricos de conexión directa a base de datos y lógica acoplada dentro de los tests, reemplazándolos por mocks para mantener independencia entre pruebas y evitar dependencias externas durante la ejecución.
+
+---
+
+## Entrada 08 — Semana 7
+**Fecha: 01/05/2026
+Herramienta: Gemini
+Responsable: Dev Lead — [Carabajal Valentina, Galeano Priscila]
+Eje temático: Eje 3** 
+
+**¿Para qué se usó?**
+Elaborar y documentar el informe técnico correspondiente al TP2 de pruebas unitarias, integrando la explicación de los casos de prueba, patrones utilizados y criterios de validación aplicados en el sistema.
+
+**¿Qué generó la IA?**
+Una propuesta de redacción técnica para estructurar el documento de pruebas unitarias, incluyendo descripciones de escenarios, organización de casos de prueba, explicación de mocks, validación de servicios y fundamentos teóricos sobre testing automatizado con Vitest y TypeScript.
+
+**¿Qué aceptamos tal cual?**
+La estructura formal del documento técnico, la organización por módulos y la explicación general de pruebas unitarias, mocks y validaciones funcionales utilizadas en el proyecto.
+
+**¿Qué modificamos y por qué?**
+
+Adaptación al Proyecto Real: Se ajustaron las descripciones generadas por la IA para reflejar correctamente la arquitectura específica implementada en el sistema de reservas.
+
+Corrección de Terminología Técnica: Se modificaron ejemplos y conceptos genéricos para alinearlos con las entidades reales del proyecto (AuthService, AdminService, Escritorio, Observer Pattern y Notificadores).
+
+Integración Académica: Se agregaron referencias explícitas a los casos de prueba desarrollados (#17 al #33) y su relación con los criterios de aceptación solicitados en la consigna del TP2.
+
+**¿Qué descartamos y por qué?**
+Se descartaron explicaciones excesivamente genéricas sobre testing y ejemplos ajenos al proyecto, priorizando contenido enfocado en la implementación concreta desarrollada por el equipo y en las herramientas efectivamente utilizadas durante el sprint.
