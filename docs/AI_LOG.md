@@ -285,8 +285,8 @@ La estructura de la función autoejecutable (bootstrap) para iniciar las pruebas
 
 ---
 
-**##Entrada 08 — Semana 6
-Fecha: 08/05/2026
+##Entrada 08 — Semana 6
+**Fecha: 08/05/2026
 Herramienta: Gemini
 Responsable: QA Lead — [Carabajal Valentina, Grasiozetti Luciano]
 Eje temático: Eje 3**
