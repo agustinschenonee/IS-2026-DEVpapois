@@ -283,6 +283,8 @@ La estructura de la función autoejecutable (bootstrap) para iniciar las pruebas
 
 *Orquestación de Servicios:* Se reemplazó la lógica directa de Supabase por llamadas a los servicios creados (AdminService, TurnoService), aplicando el principio de abstracción.
 
+---
+
 **##Entrada 08 — Semana 6
 Fecha: 08/05/2026
 Herramienta: Gemini
