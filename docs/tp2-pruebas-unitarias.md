@@ -85,3 +85,24 @@ La función bajo prueba es verificarDisponibilidad, la cual se encarga de detect
 | **11** | `verificarDisponibilidad` | Valor Límite (AVL) | **Entrada:** 10:00 - 11:00 <br> **Existente:** 10:00 - 11:00 | **False** (Ocupado: los horarios son idénticos). |
 | **12** | `verificarDisponibilidad` | Clase Equivalencia Válida | **Entrada:** 15:00 - 16:00 <br> **Existente:** (Sin turnos previos) | **True** (Disponible: la lista de turnos en esa fecha está vacía). |
 
+## B2. Framework de pruebas y automatización CI/CD
+
+### Justificación del Framework
+Se seleccionó **Vitest** como framework de pruebas unitarias debido a su alto rendimiento y compatibilidad con TypeScript. Originalmente consideramos Jest, pero Vitest ofrece una ejecución casi instantánea y una configuración simplificada al no requerir "traductores" externos como `ts-jest`. Esto optimiza el uso de recursos y facilita el flujo de trabajo colaborativo en la etapa actual de DevPapois.
+
+### Automatización mediante Pipeline (CI/CD)
+Para garantizar la integridad del código, configuramos un Pipeline usando **GitHub Actions** mediante el archivo `.github/workflows/test.yml`.
+* **Disparador:** El robot se ejecuta automáticamente en cada `push` y `pull request`.
+* **Entorno:** Instala Node.js (v24 LTS), descarga las librerías con `npm install` y ejecuta la validación con `npm test`.
+* **Bloqueo:** Si algún test falla, el pipeline muestra una cruz roja e impide que el código roto se fusione con la rama principal.
+
+### Evidencias de Ejecución
+
+**1. Capturas del Workflow en GitHub Actions:**
+<img width="1157" height="543" alt="image" src="https://github.com/user-attachments/assets/f6137081-2b93-41fe-be55-ad643aba39cb" />
+
+<img width="1163" height="491" alt="image" src="https://github.com/user-attachments/assets/3e7aa257-f8cc-45f4-a527-a13c4bba1ac5" />
+
+**2. Evidencia Audiovisual (Ejecución local en Terminal/IDE):**
+En el siguiente video se demuestra la ejecución local de las pruebas directamente desde la terminal, comprobando cómo los casos de prueba pasan correctamente en verde:
+▶️ **Video de ejecución:** https://www.youtube.com/watch?v=rA6t-v-fnac. 
