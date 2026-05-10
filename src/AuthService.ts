@@ -1,13 +1,13 @@
 import { supabase } from './supabase';
 
 export class AuthService {
-    // Esta es la función que los tests están buscando
-    static async esAdmin(usuarioId: number): Promise<boolean> {
+    // Verificamos por EMAIL, que es lo que tenemos a mano al loguear
+    static async esAdmin(email: string): Promise<boolean> {
         try {
             const { data, error } = await supabase
                 .from('usuarios')
                 .select('rol')
-                .eq('id', usuarioId)
+                .eq('email', email)
                 .single();
 
             if (error || !data) return false;
@@ -17,17 +17,29 @@ export class AuthService {
         }
     }
 
-    // Tu función original de registro
+    // Tu función de registro corregida
     static async registrarEnDB(usuario: any) {
-        if (!usuario.validarRegistro()) throw new Error("Datos inválidos");
-
-        const { data, error } = await supabase.auth.signUp({
+        // 1. Registramos en la autenticación de Supabase
+        const { data: authData, error: authError } = await supabase.auth.signUp({
             email: usuario.email,
             password: usuario.password,
-            options: {
-                data: { nombre_completo: usuario.nombre, rol: usuario.rol }
-            }
         });
+
+        if (authError) return { error: authError };
+
+        // 2. ¡IMPORTANTE! Insertamos en nuestra tabla 'usuarios' 
+        // para que aparezca en el Table Editor que estuvimos viendo
+        const { data, error } = await supabase
+            .from('usuarios')
+            .insert([
+                { 
+                    nombre: usuario.nombre, 
+                    email: usuario.email, 
+                    password: usuario.password, // Solo si tu esquema lo pide, si no, sacalo
+                    rol: usuario.rol || 'miembro' 
+                }
+            ]);
+
         return { data, error };
     }
 }
