@@ -73,6 +73,7 @@ Para probarlo utilizaremos Vitest (nuestro framework de testing), respaldandose 
 
 ## SECCIÓN 5: Reunión de validación (simulación) 
 Escriban dos preguntas que le harían al Product Owner en la próxima Sprint Review para validar que el sistema resuelve el problema real.
+
 1- ¿Hay algo en este flujo de reservas que sientas que no aporta valor real al cliente o que resulte más engorroso que su forma de trabajar actual?
 
 2- Considerando los imprevistos diarios en la gestión de los espacios, ¿creés que el sistema maneja las excepciones y cancelaciones con la flexibilidad que realmente necesitan los administradores en la vida real, o nos estamos quedando cortos frente a la necesidad del negocio?
