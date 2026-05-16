@@ -26,9 +26,11 @@ En la Sprint Review, el Product Owner actúa como la voz del cliente para valida
 ## SECCIÓN 1: Verificación vs Validación (2 ítems) 
 1. Escribir una frase que describa UNA verificación que ya hacen en su proyecto (ej: pruebas unitarias).(Probablemente ya lo hayan hecho)
 2. Escribir una frase que describa UNA validación que planean hacer con el Product Owner.
-1. Una verificación que ya hacen en su proyecto:
+
+- Una verificación que ya hacen en su proyecto:
 Ejecutamos pruebas unitarias automatizadas con Vitest para verificar que las funciones de reserva no permitan la colisión de horarios y que la base de datos relacione correctamente las tablas de usuarios y espacios.
-2. Una validación que planean hacer con el Product Owner:
+
+- Una validación que planean hacer con el Product Owner:
 Planeamos hacer una sesión de "User Testing" con el Product Owner para validar que la interfaz de reserva sea intuitiva, rápida y que realmente le sirva a los miembros para agendar un espacio de coworking en menos de tres clics.
 
 
