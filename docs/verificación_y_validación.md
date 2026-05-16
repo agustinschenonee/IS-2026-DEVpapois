@@ -50,10 +50,12 @@ Completar para los próximos 2 sprints (cada sprint = 1 semana real):
 
 ## SECCIÓN 3: Inspección y análisis estático 
 a) ¿Qué archivo o módulo de su proyecto inspeccionarían primero? ¿Por qué?
+
 El primer módulo que inspeccionaríamos sería ValidadorOcupacion.ts, ya que es una parte crítica del sistema encargada de verificar la disponibilidad de salas y escritorios antes de realizar una reserva. Un error en esta lógica podría provocar conflictos como dobles reservas o asignaciones inválidas de horarios. Además, al tratarse de una funcionalidad central del sistema, resulta importante revisar tanto la lógica implementada como el manejo correcto de los datos recibidos. 
 
 
 b) Elijan una herramienta de análisis estático y digan qué regla aplicarían primero.
+
 Como herramienta de análisis estático utilizaríamos ESLint, ya que permite analizar el código TypeScript/JavaScript sin ejecutarlo y detectar posibles errores o malas prácticas, de esta forma, complementamos también a las pruebas unitarias. Una de las primeras reglas que aplicaríamos sería la detección de variables no utilizadas (no-unused-vars), debido a que ayuda a mantener el código más limpio, evitar confusiones y mejorar la mantenibilidad del proyecto. También resulta útil para detectar errores de sintaxis y problemas comunes en el desarrollo frontend. 
 
 
