@@ -1,5 +1,3 @@
-Actividad 16/05
-
 1. Verificación vs Validación: Con sus palabras, ¿cuál es la diferencia clave? Pongan un ejemplo de cada una en su proyecto. 
 La diferencia 
 Verificación: Es revisar si el sistema está bien construido a nivel técnico. ¿Cumple con las reglas y el diseño?
