@@ -63,7 +63,9 @@ a) Describan un invariante para una clase o función importante de su sistema.
    Ejemplo: “En la clase Reserva, el campo fecha_fin siempre es posterior a fecha_inicio”.
 
 Una invariante es una regla o condición matemática que siempre debe cumplirse durante la ejecución del sistema, sin importar la acción que realice el usuario. Para nuestro sistema la invariante más importante del componente ValidadorOcupacion es: 
-“Un recurso nunca puede tener dos reservas confirmadas y que sus intervalos de tiempo se superpongan o choquen entre sí.”
+
+**“Un recurso nunca puede tener dos reservas confirmadas y que sus intervalos de tiempo se superpongan o choquen entre sí.”**
+
 Esta invariante asegura la consistencia física, dos personas no pueden ocupar el mismo espacio al mismo tiempo. El sistema valida que no haya choques utilizando este componente.
 
 b) Expliquen cómo lo probarían (con una prueba unitaria que verifique esa propiedad).
