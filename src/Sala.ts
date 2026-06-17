@@ -9,7 +9,9 @@ export class Sala implements Recurso {
         public imagen_url?: string,
         public mantenimiento?: string,
         public id?: number,
-        public horario_disponible?: string // <--- Nuevo
+        public horario_disponible?: string,
+        public descripcion?: string,
+        public amenities: string[] = []
     ) {}
 
     obtenerDetalles(): string {
