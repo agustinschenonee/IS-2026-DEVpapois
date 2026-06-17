@@ -7,7 +7,9 @@ export class Escritorio implements Recurso {
         public disponible: boolean = true,
         public tipo: string = 'ESCRITORIO',
         public imagen_url?: string,
-        public id?: number
+        public id?: number,
+        public descripcion?: string,
+        public amenities: string[] = []
     ) {}
 
     obtenerDetalles(): string {
