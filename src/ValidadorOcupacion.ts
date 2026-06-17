@@ -16,13 +16,14 @@ export async function verificarDisponibilidad(
 
     if (errorTurnos) throw new Error("Error al consultar disponibilidad en Supabase");
 
-    const hayConflicto = turnos
+    // ARREGLO PARA ACTIONS: (turnos || []) evita el error "Object is possibly 'null'"
+    const hayConflicto = (turnos || [])
         .filter(t => t.estado === 'active')
         .some(t => (horaInicio < t.hora_fin) && (horaFin > t.hora_inicio));
 
     if (hayConflicto) return false;
 
-    // 2. Bloqueos del admin para ese recurso (o bloqueos generales con recurso_id null)
+    // 2. Bloqueos del admin para ese recurso
     const { data: bloqueos, error: errorBloqueos } = await supabase
         .from('bloqueos')
         .select('id')
@@ -31,5 +32,6 @@ export async function verificarDisponibilidad(
 
     if (errorBloqueos) throw new Error("Error al consultar bloqueos en Supabase");
 
-    return bloqueos.length === 0;
+    // ARREGLO PARA ACTIONS: (bloqueos || [])
+    return (bloqueos || []).length === 0;
 }
