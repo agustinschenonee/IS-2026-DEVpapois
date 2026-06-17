@@ -1,1 +1,7 @@
+/// <reference types="vite/client" />
+import { createClient } from '@supabase/supabase-js';
 
+const supabaseUrl = import.meta.env?.VITE_SUPABASE_URL || 'https://proyecto-prueba.supabase.co';
+const supabaseKey = import.meta.env?.VITE_SUPABASE_ANON_KEY || 'llave-falsa-para-tests';
+
+export const supabase = createClient(supabaseUrl as string, supabaseKey as string);
