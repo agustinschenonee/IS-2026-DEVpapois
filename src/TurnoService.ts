@@ -13,8 +13,16 @@ export class TurnoService {
             .order('hora_inicio', { ascending: true });
 
         if (error) throw error;
-        // ARREGLO PARA ACTIONS: Siempre retornar array aunque data sea null
-        return data || []; 
+        return data || [];
+    }
+
+    // Ocupación pública de TODOS los recursos para una fecha (sin exponer
+    // quién reservó). Usa la función SQL "obtener_ocupacion" para esquivar
+    // la restricción de RLS que oculta turnos ajenos.
+    static async obtenerOcupacionPorFecha(fecha: string): Promise<{ recurso_id: number; hora_inicio: string; hora_fin: string }[]> {
+        const { data, error } = await supabase.rpc('obtener_ocupacion', { p_fecha: fecha });
+        if (error) throw error;
+        return data || [];
     }
 
     static async listarPorUsuario(usuarioId: string) {
@@ -25,8 +33,21 @@ export class TurnoService {
             .order('fecha', { ascending: true });
 
         if (error) throw error;
-        // ARREGLO PARA ACTIONS
-        return data || []; 
+        return data || [];
+    }
+
+    // Fuente única de "reservas" para el front: gracias a RLS, un miembro
+    // recibe solo las suyas y un admin las recibe todas, sin tener que
+    // distinguir el caso a mano.
+    static async listarTodos() {
+        const { data, error } = await supabase
+            .from('turnos')
+            .select('*, recursos(nombre, tipo, imagen_url)')
+            .order('fecha', { ascending: false })
+            .order('hora_inicio', { ascending: false });
+
+        if (error) throw error;
+        return data || [];
     }
 
     static async reservarTurno(uId: string, rId: number, fecha: string, inicio: string, fin: string, notas?: string) {
@@ -49,21 +70,33 @@ export class TurnoService {
             }])
             .select();
 
-        if (error) return { success: false, message: error.message };
+        if (error) {
+            // 23P01 = violó la restricción de exclusión (alguien reservó ese
+            // horario una fracción de segundo antes).
+            if ((error as any).code === '23P01') {
+                return { success: false, message: "El horario ya no está disponible." };
+            }
+            return { success: false, message: error.message };
+        }
 
-        // ARREGLO PARA ACTIONS: Garantizamos que exista data antes de pedir la posición [0]
         return { success: true, data: data ? data[0] : null };
     }
 
-    static async cancelarTurno(turnoId: number, usuarioId: string) {
+    // Se apoya en RLS: el dueño puede cancelar el suyo, el admin cualquiera.
+    // Si no afecta filas, no existía o no había permiso.
+    static async cancelarTurno(turnoId: number) {
         const { data, error } = await supabase
             .from('turnos')
             .update({ estado: 'cancelled' })
             .eq('id', turnoId)
-            .eq('usuario_id', usuarioId)
             .select();
 
         if (error) return { success: false, message: error.message };
-        return { success: true, data: data ? data[0] : null };
+
+        if (!data || data.length === 0) {
+            return { success: false, message: "No se pudo cancelar: turno no encontrado o sin permisos." };
+        }
+
+        return { success: true, data: data[0] };
     }
 }
