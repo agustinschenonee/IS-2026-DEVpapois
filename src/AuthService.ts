@@ -17,39 +17,36 @@ export class AuthService {
         }
     }
 
-    // Registro: alta en supabase.auth + perfil en tabla 'usuarios' (mismo id, sin password en texto plano)
-    static async registrarEnDB(usuario: { nombre: string; email: string; password: string; rol?: string }) {
-        const { data: authData, error: authError } = await supabase.auth.signUp({
+    // Registro: alta en supabase.auth. El perfil en 'usuarios' lo crea
+    // automáticamente el trigger de la base de datos (rol 'cliente' siempre).
+    static async registrarEnDB(usuario: { nombre: string; email: string; password: string }) {
+        const { data, error } = await supabase.auth.signUp({
             email: usuario.email,
             password: usuario.password,
+            options: {
+                data: { nombre: usuario.nombre }
+            }
         });
 
-        if (authError || !authData.user) return { error: authError };
-
-        const { data, error } = await supabase
-            .from('usuarios')
-            .insert([
-                {
-                    id: authData.user.id,
-                    nombre: usuario.nombre,
-                    email: usuario.email,
-                    rol: usuario.rol || 'cliente'
-                }
-            ])
-            .select();
-
-        return { data, error };
+        if (error) return { success: false, error: error.message };
+        return { success: true, user: data.user, session: data.session };
     }
 
     static async login(email: string, password: string) {
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error || !data.user) return { success: false, error };
+        if (error || !data.user) {
+            return { success: false, error: error?.message || "Credenciales inválidas." };
+        }
 
-        const { data: perfil } = await supabase
+        const { data: perfil, error: errorPerfil } = await supabase
             .from('usuarios')
             .select('*')
             .eq('id', data.user.id)
             .single();
+
+        if (errorPerfil || !perfil) {
+            return { success: false, error: "No se encontró el perfil del usuario." };
+        }
 
         return { success: true, user: data.user, perfil };
     }
@@ -62,5 +59,26 @@ export class AuthService {
         const { data } = await supabase.auth.getSession();
         return data.session?.user ?? null;
     }
-}
 
+    // Usuario + perfil (nombre, rol) en un solo objeto, o null si no hay sesión.
+    // Pensado para restaurar la sesión al recargar la app.
+    static async obtenerSesionCompleta() {
+        const { data } = await supabase.auth.getSession();
+        const user = data.session?.user ?? null;
+        if (!user) return null;
+
+        const { data: perfil, error } = await supabase
+            .from('usuarios')
+            .select('*')
+            .eq('id', user.id)
+            .single();
+
+        if (error || !perfil) return null;
+        return { user, perfil };
+    }
+
+    // Para reaccionar en el frontend a login/logout/refresh de token.
+    static onAuthStateChange(callback: (event: string, session: any) => void) {
+        return supabase.auth.onAuthStateChange(callback);
+    }
+}
