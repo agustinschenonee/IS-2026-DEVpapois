@@ -13,7 +13,8 @@ export class TurnoService {
             .order('hora_inicio', { ascending: true });
 
         if (error) throw error;
-        return data;
+        // ARREGLO PARA ACTIONS: Siempre retornar array aunque data sea null
+        return data || []; 
     }
 
     static async listarPorUsuario(usuarioId: string) {
@@ -24,7 +25,8 @@ export class TurnoService {
             .order('fecha', { ascending: true });
 
         if (error) throw error;
-        return data;
+        // ARREGLO PARA ACTIONS
+        return data || []; 
     }
 
     static async reservarTurno(uId: string, rId: number, fecha: string, inicio: string, fin: string, notas?: string) {
@@ -49,7 +51,8 @@ export class TurnoService {
 
         if (error) return { success: false, message: error.message };
 
-        return { success: true, data: data[0] };
+        // ARREGLO PARA ACTIONS: Garantizamos que exista data antes de pedir la posición [0]
+        return { success: true, data: data ? data[0] : null };
     }
 
     static async cancelarTurno(turnoId: number, usuarioId: string) {
@@ -61,7 +64,6 @@ export class TurnoService {
             .select();
 
         if (error) return { success: false, message: error.message };
-        return { success: true, data: data[0] };
+        return { success: true, data: data ? data[0] : null };
     }
 }
-
