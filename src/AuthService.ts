@@ -1,13 +1,13 @@
 import { supabase } from './supabase';
 
 export class AuthService {
-    // Verificamos por EMAIL, que es lo que tenemos a mano al loguear
-    static async esAdmin(email: string): Promise<boolean> {
+    // Verificamos por ID (uuid de supabase auth), no por email
+    static async esAdmin(userId: string): Promise<boolean> {
         try {
             const { data, error } = await supabase
                 .from('usuarios')
                 .select('rol')
-                .eq('email', email)
+                .eq('id', userId)
                 .single();
 
             if (error || !data) return false;
@@ -17,29 +17,50 @@ export class AuthService {
         }
     }
 
-    // Tu función de registro corregida
-    static async registrarEnDB(usuario: any) {
-        // 1. Registramos en la autenticación de Supabase
+    // Registro: alta en supabase.auth + perfil en tabla 'usuarios' (mismo id, sin password en texto plano)
+    static async registrarEnDB(usuario: { nombre: string; email: string; password: string; rol?: string }) {
         const { data: authData, error: authError } = await supabase.auth.signUp({
             email: usuario.email,
             password: usuario.password,
         });
 
-        if (authError) return { error: authError };
+        if (authError || !authData.user) return { error: authError };
 
-        // 2. ¡IMPORTANTE! Insertamos en nuestra tabla 'usuarios' 
-        // para que aparezca en el Table Editor que estuvimos viendo
         const { data, error } = await supabase
             .from('usuarios')
             .insert([
-                { 
-                    nombre: usuario.nombre, 
-                    email: usuario.email, 
-                    password: usuario.password, // Solo si tu esquema lo pide, si no, sacalo
-                    rol: usuario.rol || 'miembro' 
+                {
+                    id: authData.user.id,
+                    nombre: usuario.nombre,
+                    email: usuario.email,
+                    rol: usuario.rol || 'cliente'
                 }
-            ]);
+            ])
+            .select();
 
         return { data, error };
     }
+
+    static async login(email: string, password: string) {
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error || !data.user) return { success: false, error };
+
+        const { data: perfil } = await supabase
+            .from('usuarios')
+            .select('*')
+            .eq('id', data.user.id)
+            .single();
+
+        return { success: true, user: data.user, perfil };
+    }
+
+    static async logout() {
+        return supabase.auth.signOut();
+    }
+
+    static async usuarioActual() {
+        const { data } = await supabase.auth.getSession();
+        return data.session?.user ?? null;
+    }
 }
+
