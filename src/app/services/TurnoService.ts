@@ -1,5 +1,7 @@
 import { supabase } from './supabase';
 import { verificarDisponibilidad } from './ValidadorOcupacion';
+import { NotificadorEmail } from './Notificadores';
+import { generarHtmlReserva } from './EmailTemplate';
 
 export class TurnoService {
 
@@ -71,6 +73,11 @@ export class TurnoService {
             return { success: false, message: error.message };
         }
 
+        // Disparamos el mail de confirmación sin esperar a que termine
+        // (si la Edge Function todavía no está deployada, esto no rompe nada:
+        // queda atrapado en el try/catch interno de notificar()).
+        TurnoService.notificar(uId, rId, fecha, inicio, fin, 'reservada');
+
         return { success: true, data: data ? data[0] : null };
     }
 
@@ -87,6 +94,47 @@ export class TurnoService {
             return { success: false, message: "No se pudo cancelar: turno no encontrado o sin permisos." };
         }
 
-        return { success: true, data: data[0] };
+        const turno = data[0];
+        TurnoService.notificar(turno.usuario_id, turno.recurso_id, turno.fecha, turno.hora_inicio, turno.hora_fin, 'cancelada');
+
+        return { success: true, data: turno };
+    }
+
+    // Busca el mail del usuario y el nombre del recurso, y le pasa el HTML
+    // ya armado al NotificadorEmail (patrón Observer) para que lo envíe.
+    // Todo queda envuelto en try/catch a propósito: si falla (por ejemplo,
+    // porque la Edge Function todavía no está deployada), reservar o cancelar
+    // un turno NUNCA debe fallar por culpa del mail.
+    private static async notificar(
+        usuarioId: string,
+        recursoId: number,
+        fecha: string,
+        inicio: string,
+        fin: string,
+        accion: 'reservada' | 'cancelada'
+    ) {
+        try {
+            const [{ data: usuario }, { data: recurso }] = await Promise.all([
+                supabase.from('usuarios').select('email, nombre').eq('id', usuarioId).single(),
+                supabase.from('recursos').select('nombre').eq('id', recursoId).single()
+            ]);
+
+            if (!usuario?.email) return;
+
+            const html = generarHtmlReserva({
+                nombreUsuario: usuario.nombre || '',
+                nombreRecurso: recurso?.nombre || 'un espacio',
+                fecha,
+                horaInicio: inicio,
+                horaFin: fin,
+                accion
+            });
+
+            const asunto = accion === 'reservada' ? 'Reserva confirmada - DevPapois' : 'Reserva cancelada - DevPapois';
+
+            new NotificadorEmail(usuario.email, asunto).actualizar(html);
+        } catch (e) {
+            console.error('No se pudo enviar la notificación:', e);
+        }
     }
 }
