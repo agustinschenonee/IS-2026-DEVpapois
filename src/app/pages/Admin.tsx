@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useAppContext, Resource, ResourceType } from "../context/AppContext";
 import {
   Building2,
@@ -15,10 +15,32 @@ import {
   Edit3,
   X,
   Plus,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Upload,
+  Loader2
 } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
+import { supabase } from "../services/supabase";
+
+const BUCKET_NAME = "recursos";
+
+async function uploadImageToStorage(file: File): Promise<string> {
+  const ext = file.name.split(".").pop();
+  const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${ext}`;
+
+  const { error } = await supabase.storage
+    .from(BUCKET_NAME)
+    .upload(fileName, file, { upsert: false });
+
+  if (error) throw new Error(`Error al subir imagen: ${error.message}`);
+
+  const { data: publicData } = supabase.storage
+    .from(BUCKET_NAME)
+    .getPublicUrl(fileName);
+
+  return publicData.publicUrl;
+}
 
 export function AdminDashboard() {
   const { resources, addResource, updateResource, deleteResource, blocks, addBlock, removeBlock, reservations, cancelReservation } = useAppContext();
@@ -42,6 +64,10 @@ export function AdminDashboard() {
     imageUrl: "",
     amenities: []
   });
+  const [newImageFile, setNewImageFile] = useState<File | null>(null);
+  const [newImagePreview, setNewImagePreview] = useState<string>("");
+  const [isUploadingNew, setIsUploadingNew] = useState(false);
+  const newFileInputRef = useRef<HTMLInputElement>(null);
 
   // Edit Resource State
   const [editingResource, setEditingResource] = useState<string | null>(null);
@@ -60,6 +86,10 @@ export function AdminDashboard() {
     imageUrl: "",
     amenities: []
   });
+  const [editImageFile, setEditImageFile] = useState<File | null>(null);
+  const [editImagePreview, setEditImagePreview] = useState<string>("");
+  const [isUploadingEdit, setIsUploadingEdit] = useState(false);
+  const editFileInputRef = useRef<HTMLInputElement>(null);
 
   // New Block State
   const [isAddingBlock, setIsAddingBlock] = useState(false);
@@ -67,38 +97,88 @@ export function AdminDashboard() {
     date: "", resourceId: "all", reason: ""
   });
 
+  const handleNewImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setNewImageFile(file);
+    setNewImagePreview(URL.createObjectURL(file));
+  };
+
+  const handleEditImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setEditImageFile(file);
+    setEditImagePreview(URL.createObjectURL(file));
+  };
+
   const handleAddResource = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (newResource.name.trim()) {
-      await addResource({
-        name: newResource.name,
-        type: newResource.type,
-        capacity: newResource.capacity,
-        isActive: true,
-        imageUrl: newResource.imageUrl || (newResource.type === 'room'
-          ? 'https://images.unsplash.com/photo-1703355685952-03ed19f70f51?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjBtZWV0aW5nJTIwcm9vbXxlbnwxfHx8fDE3NzU2NDkxMDF8MA&ixlib=rb-4.1.0&q=80&w=1080'
-          : 'https://images.unsplash.com/photo-1623679116710-78b05d2fe2f3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjBvZmZpY2UlMjBkZXNrfGVufDF8fHx8MTc3NTY2MjY3N3ww&ixlib=rb-4.1.0&q=80&w=1080'),
-        amenities: newResource.amenities.length > 0 ? newResource.amenities : (newResource.type === 'room' ? ['WiFi', 'TV', 'Pizarra'] : ['WiFi', 'Enchufe']),
-        description: newResource.description || 'Nuevo espacio creado desde administración.'
-      });
-      setIsAddingResource(false);
-      setNewResource({ name: "", type: "desk", capacity: 1, description: "", imageUrl: "", amenities: [] });
+    if (!newResource.name.trim()) return;
+
+    let finalImageUrl = newResource.imageUrl;
+
+    if (newImageFile) {
+      setIsUploadingNew(true);
+      try {
+        finalImageUrl = await uploadImageToStorage(newImageFile);
+      } catch (err) {
+        console.error(err);
+        setIsUploadingNew(false);
+        return;
+      }
+      setIsUploadingNew(false);
     }
+
+    await addResource({
+      name: newResource.name,
+      type: newResource.type,
+      capacity: newResource.capacity,
+      isActive: true,
+      imageUrl: finalImageUrl || (newResource.type === 'room'
+        ? 'https://images.unsplash.com/photo-1703355685952-03ed19f70f51?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjBtZWV0aW5nJTIwcm9vbXxlbnwxfHx8fDE3NzU2NDkxMDF8MA&ixlib=rb-4.1.0&q=80&w=1080'
+        : 'https://images.unsplash.com/photo-1623679116710-78b05d2fe2f3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjBvZmZpY2UlMjBkZXNrfGVufDF8fHx8MTc3NTY2MjY3N3ww&ixlib=rb-4.1.0&q=80&w=1080'),
+      amenities: newResource.amenities.length > 0 ? newResource.amenities : (newResource.type === 'room' ? ['WiFi', 'TV', 'Pizarra'] : ['WiFi', 'Enchufe']),
+      description: newResource.description || 'Nuevo espacio creado desde administración.'
+    });
+
+    setIsAddingResource(false);
+    setNewResource({ name: "", type: "desk", capacity: 1, description: "", imageUrl: "", amenities: [] });
+    setNewImageFile(null);
+    setNewImagePreview("");
+    if (newFileInputRef.current) newFileInputRef.current.value = "";
   };
 
   const handleEditResource = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (editingResource && editForm.name.trim()) {
-      await updateResource(editingResource, {
-        name: editForm.name,
-        type: editForm.type,
-        capacity: editForm.capacity,
-        description: editForm.description,
-        imageUrl: editForm.imageUrl,
-        amenities: editForm.amenities
-      });
-      setEditingResource(null);
+    if (!editingResource || !editForm.name.trim()) return;
+
+    let finalImageUrl = editForm.imageUrl;
+
+    if (editImageFile) {
+      setIsUploadingEdit(true);
+      try {
+        finalImageUrl = await uploadImageToStorage(editImageFile);
+      } catch (err) {
+        console.error(err);
+        setIsUploadingEdit(false);
+        return;
+      }
+      setIsUploadingEdit(false);
     }
+
+    await updateResource(editingResource, {
+      name: editForm.name,
+      type: editForm.type,
+      capacity: editForm.capacity,
+      description: editForm.description,
+      imageUrl: finalImageUrl,
+      amenities: editForm.amenities
+    });
+
+    setEditingResource(null);
+    setEditImageFile(null);
+    setEditImagePreview("");
+    if (editFileInputRef.current) editFileInputRef.current.value = "";
   };
 
   const startEditingResource = (resource: Resource) => {
@@ -111,6 +191,8 @@ export function AdminDashboard() {
       imageUrl: resource.imageUrl,
       amenities: [...resource.amenities]
     });
+    setEditImageFile(null);
+    setEditImagePreview("");
   };
 
   const addAmenity = (amenity: string, isEdit: boolean = false) => {
@@ -280,14 +362,34 @@ export function AdminDashboard() {
                 <div>
                   <label className="block text-sm font-bold text-emerald-900 dark:text-emerald-100 mb-1.5 flex items-center gap-2">
                     <ImageIcon size={16} />
-                    URL de Imagen
+                    Imagen del espacio
                   </label>
+                  <div
+                    className="w-full rounded-xl border-2 border-dashed border-emerald-200 dark:border-emerald-800/50 bg-white dark:bg-gray-800 p-4 cursor-pointer hover:border-emerald-400 dark:hover:border-emerald-600 transition-colors"
+                    onClick={() => newFileInputRef.current?.click()}
+                  >
+                    {newImagePreview ? (
+                      <div className="flex items-center gap-4">
+                        <img src={newImagePreview} alt="Vista previa" className="h-20 w-32 object-cover rounded-lg shadow-sm" />
+                        <div className="flex flex-col gap-1">
+                          <span className="text-sm font-medium text-gray-700 dark:text-gray-300 truncate max-w-xs">{newImageFile?.name}</span>
+                          <span className="text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-1"><Upload size={12} /> Haz clic para cambiar</span>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center justify-center py-4 text-center">
+                        <Upload size={28} className="text-emerald-400 dark:text-emerald-600 mb-2" />
+                        <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Haz clic para seleccionar una imagen</span>
+                        <span className="text-xs text-gray-400 dark:text-gray-500 mt-1">PNG, JPG, WEBP (opcional)</span>
+                      </div>
+                    )}
+                  </div>
                   <input
-                    type="url"
-                    value={newResource.imageUrl}
-                    onChange={e => setNewResource({...newResource, imageUrl: e.target.value})}
-                    className="w-full rounded-xl border border-emerald-200 dark:border-emerald-800/50 bg-white dark:bg-gray-800 p-3 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-sm"
-                    placeholder="https://ejemplo.com/imagen.jpg"
+                    ref={newFileInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleNewImageChange}
                   />
                 </div>
 
@@ -333,12 +435,23 @@ export function AdminDashboard() {
                 </div>
 
                 <div className="flex gap-2 pt-2">
-                  <button type="submit" className="bg-emerald-600 text-white px-5 py-3 rounded-xl font-bold hover:bg-emerald-700 flex-1 shadow-sm transition-colors">
-                    Guardar Espacio
+                  <button
+                    type="submit"
+                    disabled={isUploadingNew}
+                    className="bg-emerald-600 text-white px-5 py-3 rounded-xl font-bold hover:bg-emerald-700 flex-1 shadow-sm transition-colors flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                  >
+                    {isUploadingNew ? (
+                      <><Loader2 size={18} className="animate-spin" /> Subiendo imagen...</>
+                    ) : (
+                      'Guardar Espacio'
+                    )}
                   </button>
                   <button type="button" onClick={() => {
                     setIsAddingResource(false);
                     setNewResource({ name: "", type: "desk", capacity: 1, description: "", imageUrl: "", amenities: [] });
+                    setNewImageFile(null);
+                    setNewImagePreview("");
+                    if (newFileInputRef.current) newFileInputRef.current.value = "";
                   }} className="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700 px-5 py-3 rounded-xl font-bold hover:bg-gray-50 dark:hover:bg-gray-700 shadow-sm transition-colors">
                     Cancelar
                   </button>
@@ -408,13 +521,42 @@ export function AdminDashboard() {
                       <div>
                         <label className="block text-sm font-bold text-blue-900 dark:text-blue-100 mb-1.5 flex items-center gap-2">
                           <ImageIcon size={16} />
-                          URL de Imagen
+                          Imagen del espacio
                         </label>
+                        <div
+                          className="w-full rounded-xl border-2 border-dashed border-blue-200 dark:border-blue-800/50 bg-white dark:bg-gray-800 p-4 cursor-pointer hover:border-blue-400 dark:hover:border-blue-600 transition-colors"
+                          onClick={() => editFileInputRef.current?.click()}
+                        >
+                          {editImagePreview ? (
+                            <div className="flex items-center gap-4">
+                              <img src={editImagePreview} alt="Vista previa nueva" className="h-20 w-32 object-cover rounded-lg shadow-sm" />
+                              <div className="flex flex-col gap-1">
+                                <span className="text-sm font-medium text-gray-700 dark:text-gray-300 truncate max-w-xs">{editImageFile?.name}</span>
+                                <span className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1"><Upload size={12} /> Nueva imagen seleccionada · Haz clic para cambiar</span>
+                              </div>
+                            </div>
+                          ) : editForm.imageUrl ? (
+                            <div className="flex items-center gap-4">
+                              <img src={editForm.imageUrl} alt="Imagen actual" className="h-20 w-32 object-cover rounded-lg shadow-sm" />
+                              <div className="flex flex-col gap-1">
+                                <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">Imagen actual</span>
+                                <span className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1"><Upload size={12} /> Haz clic para reemplazar</span>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex flex-col items-center justify-center py-4 text-center">
+                              <Upload size={28} className="text-blue-400 dark:text-blue-600 mb-2" />
+                              <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Haz clic para seleccionar una imagen</span>
+                              <span className="text-xs text-gray-400 dark:text-gray-500 mt-1">PNG, JPG, WEBP (opcional)</span>
+                            </div>
+                          )}
+                        </div>
                         <input
-                          type="url"
-                          value={editForm.imageUrl}
-                          onChange={e => setEditForm({...editForm, imageUrl: e.target.value})}
-                          className="w-full rounded-xl border border-blue-200 dark:border-blue-800/50 bg-white dark:bg-gray-800 p-3 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
+                          ref={editFileInputRef}
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={handleEditImageChange}
                         />
                       </div>
 
@@ -460,10 +602,23 @@ export function AdminDashboard() {
                       </div>
 
                       <div className="flex gap-2 pt-2">
-                        <button type="submit" className="bg-blue-600 text-white px-5 py-3 rounded-xl font-bold hover:bg-blue-700 flex-1 shadow-sm transition-colors">
-                          Guardar Cambios
+                        <button
+                          type="submit"
+                          disabled={isUploadingEdit}
+                          className="bg-blue-600 text-white px-5 py-3 rounded-xl font-bold hover:bg-blue-700 flex-1 shadow-sm transition-colors flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                        >
+                          {isUploadingEdit ? (
+                            <><Loader2 size={18} className="animate-spin" /> Subiendo imagen...</>
+                          ) : (
+                            'Guardar Cambios'
+                          )}
                         </button>
-                        <button type="button" onClick={() => setEditingResource(null)} className="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700 px-5 py-3 rounded-xl font-bold hover:bg-gray-50 dark:hover:bg-gray-700 shadow-sm transition-colors">
+                        <button type="button" onClick={() => {
+                          setEditingResource(null);
+                          setEditImageFile(null);
+                          setEditImagePreview("");
+                          if (editFileInputRef.current) editFileInputRef.current.value = "";
+                        }} className="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700 px-5 py-3 rounded-xl font-bold hover:bg-gray-50 dark:hover:bg-gray-700 shadow-sm transition-colors">
                           Cancelar
                         </button>
                       </div>
