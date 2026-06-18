@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router';
 import { useAppContext } from '../context/AppContext';
 import {
@@ -16,18 +16,9 @@ import {
 } from 'lucide-react';
 
 export function MainLayout() {
-  const { currentUser, currentUserRole, logout } = useAppContext();
+  const { currentUser, currentUserRole, logout, isDark, toggleDarkMode } = useAppContext();
   const navigate = useNavigate();
-  const [isDark, setIsDark] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  useEffect(() => {
-    if (isDark) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [isDark]);
 
   const handleLogout = async () => {
     await logout();
@@ -113,7 +104,7 @@ export function MainLayout() {
 
             <div className="flex items-center gap-2 sm:gap-3">
               <button
-                onClick={() => setIsDark(!isDark)}
+                onClick={toggleDarkMode}
                 className="p-2 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
                 title="Alternar tema oscuro"
               >
