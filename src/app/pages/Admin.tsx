@@ -67,7 +67,7 @@ export function AdminDashboard() {
     date: "", resourceId: "all", reason: ""
   });
 
-  const handleAddResource = (e: React.FormEvent) => {
+  const handleAddResource = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newResource.name.trim()) {
       await addResource({
@@ -89,7 +89,7 @@ export function AdminDashboard() {
   const handleEditResource = async (e: React.FormEvent) => {
     e.preventDefault();
     if (editingResource && editForm.name.trim()) {
-      async updateResource(editingResource, {
+      await updateResource(editingResource, {
         name: editForm.name,
         type: editForm.type,
         capacity: editForm.capacity,
@@ -498,7 +498,7 @@ export function AdminDashboard() {
                         {resource.isActive ? <CheckCircle2 size={18} /> : <XCircle size={18} />}
                       </button>
                       <button
-                        onClick={() =>  await deleteResource(resource.id)}
+                        onClick={async () => { await deleteResource(resource.id); }}
                         title="Eliminar"
                         className="p-2.5 rounded-xl text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/50 hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors shadow-sm"
                       >
@@ -640,7 +640,7 @@ export function AdminDashboard() {
                         </div>
                       </div>
                       <button
-                        onClick={() => await removeBlock(block.id)}
+                        onClick={async () => { await removeBlock(block.id); }}
                         className="flex items-center justify-center gap-2 px-4 py-2 border border-gray-200 dark:border-gray-700 text-sm font-bold rounded-xl text-red-600 dark:text-red-400 bg-white dark:bg-gray-800 hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-200 dark:hover:border-red-800/50 transition-colors shadow-sm"
                       >
                         <Trash2 size={16} />
