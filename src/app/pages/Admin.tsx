@@ -17,12 +17,13 @@ import {
   Plus,
   Image as ImageIcon,
   Upload,
-  Loader2
+  Loader2,
+  Download
 } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
 import { supabase } from "../services/supabase";
-
+import { exportToExcel } from '../lib/exportReservations';
 const BUCKET_NAME = "recursos";
 
 async function uploadImageToStorage(file: File): Promise<string> {
@@ -44,6 +45,14 @@ async function uploadImageToStorage(file: File): Promise<string> {
 
 export function AdminDashboard() {
   const { resources, addResource, updateResource, deleteResource, blocks, addBlock, removeBlock, reservations, cancelReservation } = useAppContext();
+
+  const handleExport = () => {
+    const userMap: Record<string, string> = {};
+    reservations.forEach(r => {
+      if (r.userId) userMap[r.userId] = r.userId;
+    });
+    exportToExcel(reservations, resources, userMap);
+  };
   
   const [activeTab, setActiveTab] = useState<'resources' | 'blocks' | 'reservations'>('resources');
   
@@ -817,6 +826,12 @@ export function AdminDashboard() {
               <h2 className="text-xl font-bold text-gray-900 dark:text-white">Todas las Reservas</h2>
               <p className="text-sm text-gray-500 dark:text-gray-400">Vista global de todas las reservas de los miembros.</p>
             </div>
+            <button
+              onClick={handleExport}
+              className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-all shadow-sm"
+            >
+              Exportar a Excel
+            </button>
           </div>
 
           {reservations.length === 0 ? (

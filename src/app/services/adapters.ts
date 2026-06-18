@@ -73,6 +73,7 @@ export function dbTurnoToReservation(row: DbTurno): Reservation {
   return {
     id: String(row.id),
     resourceId: String(row.recurso_id),
+    userId: row.usuario_id,        // ← agregá esta línea
     date: row.fecha,
     startTime: recortarHora(row.hora_inicio),
     endTime: recortarHora(row.hora_fin),

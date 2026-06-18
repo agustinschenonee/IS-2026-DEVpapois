@@ -28,6 +28,7 @@ export interface Resource {
 export interface Reservation {
   id: string;
   resourceId: string;
+  userId?: string;
   date: string;
   startTime: string;
   endTime: string;

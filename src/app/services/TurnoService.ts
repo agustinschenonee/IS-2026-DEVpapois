@@ -100,6 +100,17 @@ export class TurnoService {
         return { success: true, data: turno };
     }
 
+    static async listarTodosConUsuarios() {
+            const { data, error } = await supabase
+                .from('turnos')
+                .select('*, recursos(nombre), usuarios(nombre)')
+                .order('fecha', { ascending: true });
+            if (error) throw error;
+            return data || [];
+        }
+
+
+
     // Busca el mail del usuario y el nombre del recurso, y le pasa el HTML
     // ya armado al NotificadorEmail (patrón Observer) para que lo envíe.
     // Todo queda envuelto en try/catch a propósito: si falla (por ejemplo,
