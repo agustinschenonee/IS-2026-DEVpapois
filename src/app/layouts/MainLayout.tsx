@@ -120,7 +120,6 @@ export function MainLayout() {
                 {isDark ? <Sun size={20} /> : <Moon size={20} />}
               </button>
 
-              {/* Badge de rol */}
               <div className="hidden sm:flex items-center gap-1 px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-sm text-gray-600 dark:text-gray-300">
                 {currentUserRole === 'admin'
                   ? <><ShieldAlert size={15} className="text-amber-500" /> Admin</>
@@ -128,12 +127,10 @@ export function MainLayout() {
                 }
               </div>
 
-              {/* Avatar */}
               <div className="hidden sm:flex items-center justify-center h-8 w-8 rounded-full bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 font-bold text-sm">
                 {avatarLetter}
               </div>
 
-              {/* Logout */}
               <button
                 onClick={handleLogout}
                 className="hidden sm:flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-colors"
