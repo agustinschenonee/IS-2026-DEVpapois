@@ -56,6 +56,7 @@ interface AppState {
   reservations: Reservation[];
   blocks: Block[];
   loading: boolean;
+  isDark: boolean;
 }
 
 interface AppContextType extends AppState {
@@ -70,9 +71,19 @@ interface AppContextType extends AppState {
   addBlock: (block: Omit<Block, 'id'>) => Promise<void>;
   removeBlock: (id: string) => Promise<void>;
   reloadReservations: () => Promise<void>;
+  toggleDarkMode: () => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
+
+// Carga las reservas correctas según el rol: un admin necesita listarTodos(),
+// listarPorUsuario() siempre filtra por ese id sin importar lo que permita RLS.
+async function cargarReservas(userId: string, role: 'member' | 'admin'): Promise<Reservation[]> {
+  const raw = role === 'admin'
+    ? await TurnoService.listarTodos().catch(() => [])
+    : await TurnoService.listarPorUsuario(userId).catch(() => []);
+  return raw.map(dbTurnoToReservation);
+}
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AppState>({
@@ -82,7 +93,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
     reservations: [],
     blocks: [],
     loading: true,
+    isDark: false,
   });
+
+  // Sincroniza la clase 'dark' del <html> cada vez que cambia isDark, sin importar
+  // cuántas veces se monte/desmonte MainLayout al navegar entre rutas.
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', state.isDark);
+  }, [state.isDark]);
+
+  const toggleDarkMode = () => {
+    setState(prev => ({ ...prev, isDark: !prev.isDark }));
+  };
 
   // Carga inicial: sesión + recursos + bloqueos
   useEffect(() => {
@@ -108,18 +130,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
       let reservations: Reservation[] = [];
       if (sesion) {
-        const raw = await TurnoService.listarPorUsuario(sesion.user.id).catch(() => []);
-        reservations = raw.map(dbTurnoToReservation);
+        reservations = await cargarReservas(sesion.user.id, role);
       }
 
-      setState({
+      setState(prev => ({
+        ...prev,
         currentUser: user,
         currentUserRole: role,
         resources: (rawResources ?? []).map(dbRecursoToResource),
         reservations,
         blocks: (rawBlocks ?? []).map(dbBloqueoToBlock),
         loading: false,
-      });
+      }));
     };
 
     init();
@@ -149,13 +171,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
       rol: res.perfil.rol,
     };
     const role: 'member' | 'admin' = res.perfil.rol === 'admin' ? 'admin' : 'member';
-    const raw = await TurnoService.listarPorUsuario(res.user!.id).catch(() => []);
+    const reservations = await cargarReservas(res.user!.id, role);
 
     setState(prev => ({
       ...prev,
       currentUser: user,
       currentUserRole: role,
-      reservations: raw.map(dbTurnoToReservation),
+      reservations,
     }));
     return { success: true };
   };
@@ -178,8 +200,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const reloadReservations = async () => {
     if (!state.currentUser) return;
-    const raw = await TurnoService.listarPorUsuario(state.currentUser.id).catch(() => []);
-    setState(prev => ({ ...prev, reservations: raw.map(dbTurnoToReservation) }));
+    const reservations = await cargarReservas(state.currentUser.id, state.currentUserRole);
+    setState(prev => ({ ...prev, reservations }));
   };
 
   const addReservation = async (res: Omit<Reservation, 'id' | 'status'>) => {
@@ -252,6 +274,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       addBlock,
       removeBlock,
       reloadReservations,
+      toggleDarkMode,
     }}>
       {children}
     </AppContext.Provider>
